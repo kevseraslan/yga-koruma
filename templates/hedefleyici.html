@@ -1,10 +1,27 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Hedefleyici - ReviseMe{% endblock %}
+{% block title %}Hedefleyici{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2>Hedefleyici</h2>
-    {# Content for the Hedefleyici page will go here #}
+{% block styles %}
+<style>
+    /* Add custom styles for hedefleyici page if needed */
+    .sub-menu {
+        margin-bottom: 20px;
+    }
+    .sub-menu a {
+        margin-right: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <h1>Hedefleyici</h1>
+    
+    {# This block will be used by specific hedefleyici sub-pages to insert their content #}
+    {% block hedefleyici_content %}
+        <p>Lütfen yukarıdaki seçeneklerden birini belirleyin.</p>
+    {% endblock %}
+
 </div>
 {% endblock %} 

@@ -545,6 +545,10 @@
             transition: all var(--transition-speed) ease;
         }
         
+        #page-content-wrapper.no-sidebar-padding {
+            padding-left: 0;
+        }
+
         .content-container {
             padding: 1.5rem;
             width: 100%;
@@ -984,12 +988,15 @@
         <div class="d-flex" id="wrapper">
             <!-- Sidebar -->
             <div class="sidebar-wrapper" id="sidebar-wrapper">
+                {% if show_sidebar %}
                 <div class="sidebar-heading">
                     <a href="{{ url_for('index') }}" class="text-white text-decoration-none">
                         <i class="fas fa-book-reader"></i> <span>ReviseMe</span>
                     </a>
                 </div>
                 <div class="list-group list-group-flush mt-2">
+                    {# Takip Sistemi Menu Items - Show only when section is 'takipsistemi' #}
+                    {% if section == 'takipsistemi' %}
                     <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'index' else '' }}">
                         <i class="fas fa-home"></i> <span>Ana Sayfa</span>
                     </a>
@@ -1012,16 +1019,26 @@
                     <a href="{{ url_for('past_questions') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'past_questions' else '' }}">
                         <i class="fas fa-history"></i> <span>Geçmiş Sorular</span>
                     </a>
-                    <!-- Task Timer link removed temporarily until route is implemented -->
-                    <!--<a href="#" class="list-group-item list-group-item-action sidebar-item">
-                        <i class="fas fa-clock"></i> <span>Görev Zamanlayıcı</span>
-                    </a>-->
+                    <a href="{{ url_for('timer') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'timer' else '' }}">
+                        <i class="fas fa-clock"></i> <span>Sayaç</span>
+                    </a>
+                    {% endif %}
+
+                    {# Hedefleyici Menu Items - Show only when section is 'hedefleyici' #}
                     {% if section == 'hedefleyici' %}
-                    <a href="{{ url_for('tasks') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'tasks' else '' }}">
-                        <i class="fas fa-tasks"></i> <span>Görevlerim</span>
+                    <div class="sidebar-heading">Hedefleyici</div>
+                    <a href="{{ url_for('kitaplarim') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'kitaplarim' else '' }}">
+                        <i class="fas fa-book"></i> <span>Kitaplarım</span>
+                    </a>
+                    <a href="{{ url_for('gorevlerim') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'gorevlerim' else '' }}">
+                        <i class="fas fa-check-double"></i> <span>Görevlerim</span>
+                    </a>
+                    <a href="{{ url_for('listening') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'listening' else '' }}">
+                        <i class="fas fa-headphones"></i> <span>Listening</span>
                     </a>
                     {% endif %}
                 </div>
+                
                 
                 <!-- User Info at Bottom of Sidebar -->
                 <div class="mt-auto p-3 border-top border-light border-opacity-25 d-flex align-items-center">
@@ -1035,10 +1052,11 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
+                {% endif %}
             </div>
 
             <!-- Page Content -->
-            <div id="page-content-wrapper">
+            <div id="page-content-wrapper" class="{% if not show_sidebar %}no-sidebar-padding{% endif %}">
                 <!-- Top Navigation -->
                 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
                     <div class="container-fluid">
@@ -1160,29 +1178,19 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Sidebar toggle functionality
+        // Simplified sidebar toggle functionality
         const sidebarToggle = document.getElementById('sidebarToggle');
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', function(e) {
                 e.preventDefault();
-                document.getElementById('wrapper').classList.toggle('toggled');
+                document.body.classList.toggle('sidebar-toggled');
+                document.querySelector('.sidebar-wrapper').classList.toggle('toggled');
+                document.querySelector('#page-content-wrapper').classList.toggle('toggled');
             });
         }
         
-        // Check for mobile view on page load
-        function checkMobileView() {
-            if (window.innerWidth < 768) {
-                document.getElementById('wrapper').classList.add('toggled');
-            } else {
-                document.getElementById('wrapper').classList.remove('toggled');
-            }
-        }
-        
-        // Initial check
-        checkMobileView();
-        
-        // Check on window resize
-        window.addEventListener('resize', checkMobileView);
+        // CSRF token setup for AJAX requests
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     });
     </script>
     <script>
@@ -1335,6 +1343,28 @@
         if (theme === 'dark') document.body.classList.add('dark-theme');
         else document.body.classList.remove('dark-theme');
     });
+    </script>
+    <!-- Direct script to handle hamburger menu toggle -->
+    <script>
+        // Get the hamburger menu button
+        const menuButton = document.querySelector('.fa-bars').closest('button');
+        
+        // Add click event listener
+        if (menuButton) {
+            menuButton.addEventListener('click', function() {
+                // Toggle sidebar visibility
+                const sidebar = document.querySelector('.sidebar-wrapper');
+                if (sidebar) {
+                    sidebar.style.marginLeft = sidebar.style.marginLeft === '0px' ? '-250px' : '0px';
+                }
+                
+                // Adjust main content area
+                const content = document.querySelector('#page-content-wrapper');
+                if (content) {
+                    content.style.marginLeft = sidebar.style.marginLeft === '0px' ? '250px' : '0px';
+                }
+            });
+        }
     </script>
 </body>
 </html>

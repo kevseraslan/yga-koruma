@@ -2,112 +2,476 @@
 
 {% block title %}Ana Sayfa - ReviseMe{% endblock title %}
 
+{% block extra_styles %}
+<style>
+    /* Custom styles for the index page */
+    .hero-banner {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        border-radius: 10px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .quick-actions-bar {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .category-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-image {
+        height: 120px;
+        background-position: center;
+        background-size: cover;
+    }
+    
+    /* Category-specific styles */
+    .category-icon[data-category="Matematik"] { background-color: #4e73df; }
+    .category-icon[data-category="Fizik"] { background-color: #1cc88a; }
+    .category-icon[data-category="Kimya"] { background-color: #f6c23e; }
+    .category-icon[data-category="Biyoloji"] { background-color: #36b9cc; }
+    .category-icon[data-category="Edebiyat"] { background-color: #e74a3b; }
+    .category-icon[data-category="Tarih"] { background-color: #fd7e14; }
+    .category-icon:not([data-category="Matematik"]):not([data-category="Fizik"]):not([data-category="Kimya"]):not([data-category="Biyoloji"]):not([data-category="Edebiyat"]):not([data-category="Tarih"]) { background-color: #4e73df; }
+    
+    .category-progress[data-category="Matematik"] { background-color: #4e73df; }
+    .category-progress[data-category="Fizik"] { background-color: #1cc88a; }
+    .category-progress[data-category="Kimya"] { background-color: #f6c23e; }
+    .category-progress[data-category="Biyoloji"] { background-color: #36b9cc; }
+    .category-progress[data-category="Edebiyat"] { background-color: #e74a3b; }
+    .category-progress[data-category="Tarih"] { background-color: #fd7e14; }
+    .category-progress:not([data-category="Matematik"]):not([data-category="Fizik"]):not([data-category="Kimya"]):not([data-category="Biyoloji"]):not([data-category="Edebiyat"]):not([data-category="Tarih"]) { background-color: #4e73df; }
+    
+    .category-badge[data-category="Matematik"] { background-color: #4e73df; }
+    .category-badge[data-category="Fizik"] { background-color: #1cc88a; }
+    .category-badge[data-category="Kimya"] { background-color: #f6c23e; }
+    .category-badge[data-category="Biyoloji"] { background-color: #36b9cc; }
+    .category-badge[data-category="Edebiyat"] { background-color: #e74a3b; }
+    .category-badge[data-category="Tarih"] { background-color: #fd7e14; }
+    .category-badge:not([data-category="Matematik"]):not([data-category="Fizik"]):not([data-category="Kimya"]):not([data-category="Biyoloji"]):not([data-category="Edebiyat"]):not([data-category="Tarih"]) { background-color: #4e73df; }
+    
+    .motivational-box {
+        background: linear-gradient(135deg, #36b9cc 0%, #1a8a98 100%);
+        border-radius: 10px;
+        padding: 1.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .progress-summary {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .recommended-study {
+        margin-top: 2rem;
+    }
+    
+    .study-card {
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    
+    .study-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="p-0">
-    <!-- Hero Banner -->
-    <div class="hero-banner position-relative mb-5">
+    <!-- Hero Banner with Quick Stats -->
+    <div class="hero-banner position-relative mb-0">
         <div class="hero-image">
             <div class="hero-curved-container">
-                <div class="hero-content text-white">
-                    <p class="intro-text mb-2">MERAKLA ÖĞREN</p>
-                    <h1 class="hero-title mb-3">Yaratıcılığı<br>merak ile keşfet</h1>
-                    <div class="mt-4">
-                        <a href="#categories" class="btn btn-light btn-lg rounded-pill px-4 py-2">KEŞFET</a>
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 hero-content text-white">
+                            <div class="hero-badge mb-2 fade-in-up">HOŞ GELDİNİZ</div>
+                            <p class="intro-text mb-2 fade-in-up">MERAKLA ÖĞREN</p>
+                            <h1 class="hero-title mb-3 fade-in-up">Yaratıcılığı<br>merak ile keşfet</h1>
+                            <p class="lead mb-4 fade-in-up d-none d-md-block">ReviseMe ile çalışmalarınızı takip edin, sorularınızı kategorize edin ve bilimsel tekrar yöntemiyle kalıcı öğrenme sağlayın.</p>
+                            
+
+                            
+
+                        </div>
+                        <div class="col-lg-6 position-relative d-none d-lg-block">
+                            <div class="hero-objects">
+                                <img src="https://i.imgur.com/dNBZHqm.png" class="hero-object hero-object-1" alt="Öğrenme objesi">
+                                <img src="https://i.imgur.com/K3DUjgL.png" class="hero-object hero-object-2" alt="Öğrenme objesi">
+                                <img src="https://i.imgur.com/7XbUvPn.png" class="hero-object hero-object-3" alt="Öğrenme objesi">
+                                <img src="https://i.imgur.com/pYQBSG8.png" class="hero-object hero-object-4" alt="Öğrenme objesi">
+                                <img src="https://i.imgur.com/qVlUODk.jpg" class="hero-object hero-object-5" alt="Öğrenme objesi">
+                                <img src="https://i.imgur.com/L4R3Eqd.png" class="hero-object hero-object-6" alt="Öğrenme objesi">
+                                <img src="https://i.imgur.com/2YP4ZzF.png" class="hero-object hero-object-7" alt="Öğrenme objesi">
+                                <img src="https://i.imgur.com/8J7HGXs.png" class="hero-object hero-object-8" alt="Öğrenme objesi">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="hero-objects">
-                    <img src="https://i.imgur.com/dNBZHqm.png" class="hero-object hero-object-1" alt="Öğrenme objesi">
-                    <img src="https://i.imgur.com/K3DUjgL.png" class="hero-object hero-object-2" alt="Öğrenme objesi">
-                    <img src="https://i.imgur.com/7XbUvPn.png" class="hero-object hero-object-3" alt="Öğrenme objesi">
-                    <img src="https://i.imgur.com/pYQBSG8.png" class="hero-object hero-object-4" alt="Öğrenme objesi">
-                    <img src="https://i.imgur.com/qVlUODk.jpg" class="hero-object hero-object-5" alt="Öğrenme objesi">
-                    <img src="https://i.imgur.com/L4R3Eqd.png" class="hero-object hero-object-6" alt="Öğrenme objesi">
-                    <img src="https://i.imgur.com/2YP4ZzF.png" class="hero-object hero-object-7" alt="Öğrenme objesi">
-                    <img src="https://i.imgur.com/8J7HGXs.png" class="hero-object hero-object-8" alt="Öğrenme objesi">
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="container mt-4">
-        <!-- Motivasyon Mesajı -->
-        <div id="motivationBox" class="mb-4">
-            <div class="alert alert-primary border-0 shadow-sm" style="font-size:1.1em; border-left: 5px solid #0d6efd;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <span id="motivationText"><i class="fas fa-bolt text-primary me-2"></i> {{ motivation_message|default('Her gün bir adım daha ileri! Bugünün hedeflerini tamamlamak için harekete geçin.') }}</span>
-                    <button type="button" class="btn-close" aria-label="Kapat" onclick="document.getElementById('motivationBox').style.display='none';"></button>
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions-bar bg-white py-3 shadow-sm sticky-top">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <div class="quick-search me-3 flex-grow-1">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control bg-light border-start-0" placeholder="Soru veya kategori ara..." id="quickSearch">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-md-end mt-3 mt-md-0 gap-2">
+                        <a href="{{ url_for('add_question') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i> Soru Ekle</a>
+                        <a href="{{ url_for('tasks') }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-tasks me-1"></i> Görevlerim</a>
+                        <a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-calendar-alt me-1"></i> Planlarım</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container py-4">
+        <!-- Dashboard Summary -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <!-- Motivasyon Mesajı -->
+                <div id="motivationBox" class="mb-4">
+                    <div class="alert alert-primary border-0 shadow-sm rounded-3" style="font-size:1.1em; border-left: 5px solid #0d6efd;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span id="motivationText"><i class="fas fa-bolt text-primary me-2"></i> {{ motivation_message|default('Her gün bir adım daha ileri! Bugünün hedeflerini tamamlamak için harekete geçin.') }}</span>
+                            <button type="button" class="btn-close" aria-label="Kapat" onclick="document.getElementById('motivationBox').style.display='none';"></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Summary -->
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Çalışma İlerlemen</h5>
+                            <span class="badge bg-success rounded-pill">Bu hafta: 12 saat</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="progress-circle position-relative" style="width: 60px; height: 60px;">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="5"/>
+                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#4e73df" stroke-width="5" stroke-dasharray="157" stroke-dashoffset="47" transform="rotate(-90 30 30)"/>
+                                        </svg>
+                                        <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                            <span class="fw-bold">70%</span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-0">Tamamlanan</h6>
+                                        <small class="text-muted">28/40 soru</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="progress-circle position-relative" style="width: 60px; height: 60px;">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="5"/>
+                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#1cc88a" stroke-width="5" stroke-dasharray="157" stroke-dashoffset="78.5" transform="rotate(-90 30 30)"/>
+                                        </svg>
+                                        <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                            <span class="fw-bold">50%</span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-0">Tekrarlar</h6>
+                                        <small class="text-muted">15/30 tekrar</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="progress-circle position-relative" style="width: 60px; height: 60px;">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="5"/>
+                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#f6c23e" stroke-width="5" stroke-dasharray="157" stroke-dashoffset="94.2" transform="rotate(-90 30 30)"/>
+                                        </svg>
+                                        <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                            <span class="fw-bold">40%</span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-0">Görevler</h6>
+                                        <small class="text-muted">8/20 görev</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Upcoming Tasks -->
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="card-title mb-0"><i class="fas fa-calendar-day text-primary me-2"></i>Bugünkü Görevler</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex align-items-center py-3 px-4">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" value="" id="task1">
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Matematik Tekrarı</h6>
+                                    <small class="text-muted">10:00 - 11:30</small>
+                                </div>
+                                <span class="badge bg-warning text-dark ms-auto">30dk kaldı</span>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center py-3 px-4">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" value="" id="task2">
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Fizik Soruları</h6>
+                                    <small class="text-muted">13:00 - 14:30</small>
+                                </div>
+                                <span class="badge bg-info text-dark ms-auto">Bugün</span>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center py-3 px-4">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" value="" id="task3">
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Kimya Tekrarı</h6>
+                                    <small class="text-muted">16:00 - 17:00</small>
+                                </div>
+                                <span class="badge bg-info text-dark ms-auto">Bugün</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-white border-0 text-center py-3">
+                        <a href="{{ url_for('tasks') }}" class="btn btn-sm btn-outline-primary">Tüm Görevleri Görüntüle</a>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Categories Section -->
-        <div id="categories" class="container my-5">
-            <h2 class="text-center mb-4">Kategoriler</h2>
-            <p class="text-center text-muted">Başarı yolunda her soru bir fırsat!</p>
+        <div id="categories" class="my-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Kategoriler</h2>
+                    <p class="text-muted mb-0">Başarı yolunda her soru bir fırsat!</p>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="categoryFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter me-1"></i> Filtrele
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="categoryFilterDropdown">
+                            <li><a class="dropdown-item" href="#">Tüm Kategoriler</a></li>
+                            <li><a class="dropdown-item" href="#">En Çok Soru</a></li>
+                            <li><a class="dropdown-item" href="#">En Son Eklenen</a></li>
+                            <li><a class="dropdown-item" href="#">Favorilerim</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary active"><i class="fas fa-th"></i></button>
+                        <button type="button" class="btn btn-outline-secondary"><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Kategori Kartları -->
-        <div class="row mt-4 justify-content-center">
+        <div class="row g-4 justify-content-center">
             {% for category in categories %}
                 {% if category.Name != 'İngilizce' %}
-                <div class="col-md-4 mb-5">
-                    <a href="/category/{{ category.CategoryId }}" class="text-decoration-none">
-                        <div class="text-center">
-                            <div class="progress-ring-container mx-auto mb-3 position-relative">
-                                <!-- Progress Ring -->
-                                <svg class="progress-ring" width="200" height="200">
-                                    <circle class="progress-ring-circle-bg" cx="100" cy="100" r="90" />
-                                    <circle class="progress-ring-circle" cx="100" cy="100" r="90" 
-                                        stroke="{% if category.Name == 'Matematik' %}#4e73df
-                                               {% elif category.Name == 'Fizik' %}#1cc88a
-                                               {% elif category.Name == 'Kimya' %}#f6c23e
-                                               {% elif category.Name == 'Biyoloji' %}#36b9cc
-                                               {% elif category.Name == 'Tarih' %}#e74a3b
-                                               {% elif category.Name == 'Coğrafya' %}#6f42c1
-                                               {% elif category.Name == 'Edebiyat' %}#fd7e14
-                                               {% else %}#4e73df{% endif %}"
-                                        stroke-dasharray="{{ (category.question_count|default(0) / 20 * 565.48)|round(2) }} 565.48"
-                                        transform="rotate(-90, 100, 100)" />
-                                </svg>
-                                
-                                <!-- Category Circle -->
-                                <div class="category-circle d-flex align-items-center justify-content-center" 
-                                     {% if category.Name == 'Matematik' %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://i.imgur.com/qVlUODk.jpg') no-repeat center center; background-size: cover;"
-                                     {% elif category.Name == 'Fizik' %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://source.unsplash.com/featured/600x600/?physics,atom,science') no-repeat center center; background-size: cover;"
-                                     {% elif category.Name == 'Kimya' %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://source.unsplash.com/featured/600x600/?chemistry,molecules,lab') no-repeat center center; background-size: cover;"
-                                     {% elif category.Name == 'Biyoloji' %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://source.unsplash.com/featured/600x600/?biology,cells,dna') no-repeat center center; background-size: cover;"
-                                     {% elif category.Name == 'Tarih' %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://source.unsplash.com/featured/600x600/?history,ancient,museum') no-repeat center center; background-size: cover;"
-                                     {% elif category.Name == 'Coğrafya' %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://source.unsplash.com/featured/600x600/?geography,maps,earth') no-repeat center center; background-size: cover;"
-                                     {% elif category.Name == 'Edebiyat' %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://source.unsplash.com/featured/600x600/?literature,books,library') no-repeat center center; background-size: cover;"
-                                     {% else %}
-                                     style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://source.unsplash.com/featured/600x600/?education,learning') no-repeat center center; background-size: cover;"
-                                     {% endif %}>
-                                    <div class="category-overlay d-flex align-items-center justify-content-center">
-                                        <i class="{% if category.Name == 'Matematik' %}fas fa-calculator
-                                                  {% elif category.Name == 'Fizik' %}fas fa-atom
-                                                  {% elif category.Name == 'Kimya' %}fas fa-flask
-                                                  {% elif category.Name == 'Biyoloji' %}fas fa-dna
-                                                  {% elif category.Name == 'Tarih' %}fas fa-landmark
-                                                  {% elif category.Name == 'Coğrafya' %}fas fa-globe-americas
-                                                  {% elif category.Name == 'Edebiyat' %}fas fa-book
-                                                  {% else %}fas fa-graduation-cap{% endif %} fa-2x text-white"></i>
-                                    </div>
-                                </div>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 transition-card">
+                        <div class="card-img-top position-relative overflow-hidden" style="height: 160px;">
+                            <div class="category-image w-100 h-100" 
+                                 {% if category.Name == 'Matematik' %}
+                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?math,numbers,geometry') no-repeat center center; background-size: cover;"
+                                 {% elif category.Name == 'Fizik' %}
+                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?physics,science,atom') no-repeat center center; background-size: cover;"
+                                 {% elif category.Name == 'Kimya' %}
+                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?chemistry,molecule,lab') no-repeat center center; background-size: cover;"
+                                 {% elif category.Name == 'Biyoloji' %}
+                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?biology,cell,nature') no-repeat center center; background-size: cover;"
+                                 {% elif category.Name == 'Edebiyat' %}
+                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?literature,books,library') no-repeat center center; background-size: cover;"
+                                 {% elif category.Name == 'Tarih' %}
+                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?history,ancient,museum') no-repeat center center; background-size: cover;"
+                                 {% else %}
+                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?education,study,learning') no-repeat center center; background-size: cover;"
+                                 {% endif %}>
                             </div>
-                            <h5 class="category-title">{{ category.Name }}</h5>
-                            <span class="badge bg-primary rounded-pill">{{ category.question_count|default(0) }} Soru</span>
+                            <div class="category-icon position-absolute top-0 end-0 m-3 p-2 rounded-circle" style="width: 40px; height: 40px;"
+                                 data-category="{{ category.Name }}">
+                                <i class="{% if category.Name == 'Matematik' %}fas fa-calculator
+                                          {% elif category.Name == 'Fizik' %}fas fa-atom
+                                          {% elif category.Name == 'Kimya' %}fas fa-flask
+                                          {% elif category.Name == 'Biyoloji' %}fas fa-dna
+                                          {% elif category.Name == 'Edebiyat' %}fas fa-book
+                                          {% elif category.Name == 'Tarih' %}fas fa-landmark
+                                          {% else %}fas fa-graduation-cap{% endif %} text-white"></i>
+                            </div>
+                            <div class="progress position-absolute bottom-0 start-0 end-0 rounded-0" style="height: 6px;">
+                                <div class="progress-bar category-progress" role="progressbar" 
+                                     style="width: {{ category.completion_percentage|default(0) }}%;" 
+                                     data-category="{{ category.Name }}"
+                                     aria-valuenow="{{ category.completion_percentage|default(0) }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
                         </div>
-                    </a>
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">{{ category.Name }}</h5>
+                                <span class="badge rounded-pill category-badge" data-category="{{ category.Name }}">{{ category.question_count|default(0) }} Soru</span>
+                            </div>
+                            <p class="card-text small text-muted mb-3">{{ category.description|default('Bu kategoride çeşitli sorular bulunmaktadır. Çalışmaya başlamak için tıklayın.') }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small">
+                                    <span class="text-muted">Tamamlanan:</span> <span class="fw-bold">{{ category.completion_percentage|default(0) }}%</span>
+                                </div>
+                                <a href="/category/{{ category.CategoryId }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Görüntüle</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 {% endif %}
             {% endfor %}
+            
+            <!-- Add Category Card -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 border-0 border-dashed shadow-sm rounded-4 transition-card bg-light">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-4" style="min-height: 280px;">
+                        <div class="text-center mb-3">
+                            <div class="btn btn-light btn-lg rounded-circle mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-plus fa-2x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">Yeni Kategori Ekle</h5>
+                            <p class="card-text text-muted small">Kendi çalışma kategorinizi oluşturun ve sorularınızı düzenleyin.</p>
+                        </div>
+                        <a href="#" class="btn btn-primary rounded-pill px-4">Kategori Ekle</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Önerilen Çalışma Bölümü -->
+        <div class="recommended-section my-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Önerilen Çalışmalar</h2>
+                    <p class="text-muted mb-0">Sizin için özel olarak hazırlanmış çalışma planları</p>
+                </div>
+                <a href="#" class="btn btn-outline-primary rounded-pill px-3">Tümünü Görüntüle</a>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 transition-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="study-plan-icon me-3 d-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-0">Günlük Tekrar Planı</h5>
+                                    <p class="card-text small text-muted mb-0">25 dakika</p>
+                                </div>
+                            </div>
+                            <p class="card-text">Etkili öğrenme için günlük tekrar planınızı oluşturun ve takip edin.</p>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-primary">5 soru kaldı</span>
+                                <a href="#" class="btn btn-sm btn-primary rounded-pill px-3">Devam Et</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 transition-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="study-plan-icon me-3 d-flex align-items-center justify-content-center rounded-circle bg-success text-white" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-0">Haftalık Program</h5>
+                                    <p class="card-text small text-muted mb-0">3 saat</p>
+                                </div>
+                            </div>
+                            <p class="card-text">Tüm dersleri kapsayan haftalık çalışma programınızı oluşturun.</p>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-success">2/7 gün tamamlandı</span>
+                                <a href="#" class="btn btn-sm btn-success rounded-pill px-3">Devam Et</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 transition-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="study-plan-icon me-3 d-flex align-items-center justify-content-center rounded-circle bg-warning text-white" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-0">Hızlı Tekrar</h5>
+                                    <p class="card-text small text-muted mb-0">15 dakika</p>
+                                </div>
+                            </div>
+                            <p class="card-text">Kısa sürede maksimum verim için hızlı tekrar modülünü deneyin.</p>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-warning">Yeni</span>
+                                <a href="#" class="btn btn-sm btn-warning rounded-pill px-3 text-white">Başla</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
         
         <!-- Önerilen Çalışma Planları -->

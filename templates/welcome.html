@@ -2,7 +2,24 @@
 {% block title %}Hoş Geldin - ReviseMe{% endblock %}
 {% block navbar %}{% endblock %}
 {% block content_simple %}
-<div class="welcome-page">
+<div class="welcome-page" style="margin-top: -20px; padding-top: 0;">
+<style>
+body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden;
+}
+
+.welcome-page {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+#content_simple {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+</style>
     <!-- Header Section with Navigation Menu -->
     <header class="welcome-header bg-primary text-white py-2 sticky-top">
         <div class="container">
@@ -30,44 +47,23 @@
         <div class="hero-banner">
             <div class="hero-image">
                 <div class="hero-curved-container">
-                    <div class="container position-relative py-4">
-                        <div class="row align-items-center">
-                            <div class="col-lg-6 hero-content text-white">
-                                <div class="hero-badge fade-in-up">YENİ NESİL EĞİTİM PLATFORMU</div>
-                                <h1 class="hero-title mb-3 fade-in-up">Daha Etkili<br>Öğrenme Yöntemi</h1>
-                                <p class="lead mb-4 fade-in-up">ReviseMe ile çalışmalarınızı takip edin, sorularınızı kategorize edin ve bilimsel tekrar yöntemiyle kalıcı öğrenme sağlayın.</p>
-                                <div class="hero-stats d-flex mb-4 fade-in-up">
-                                    <div class="hero-stat me-4">
-                                        <div class="hero-stat-number">10K+</div>
-                                        <div class="hero-stat-label">Soru</div>
-                                    </div>
-                                    <div class="hero-stat me-4">
-                                        <div class="hero-stat-number">5K+</div>
-                                        <div class="hero-stat-label">Kullanıcı</div>
-                                    </div>
-                                    <div class="hero-stat">
-                                        <div class="hero-stat-number">15+</div>
-                                        <div class="hero-stat-label">Kategori</div>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-3 fade-in-up">
-                                    <a href="#questions" class="btn btn-light btn-lg rounded-pill px-4 py-2"><i class="fas fa-search me-2"></i>SORULARI KEŞFET</a>
-                                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 py-2"><i class="fas fa-sign-in-alt me-2"></i>GİRİŞ YAP</a>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 position-relative">
-                                <div class="hero-objects-container">
-                                    <div class="floating-image main-image">
-                                        <img src="https://i.imgur.com/qVlUODk.jpg" alt="Learning" class="img-fluid rounded-lg shadow-lg">
-                                    </div>
-                                    <img src="https://i.imgur.com/dNBZHqm.png" class="floating-object object-1" alt="Öğrenme objesi">
-                                    <img src="https://i.imgur.com/K3DUjgL.png" class="floating-object object-2" alt="Öğrenme objesi">
-                                    <img src="https://i.imgur.com/7XbUvPn.png" class="floating-object object-3" alt="Öğrenme objesi">
-                                    <img src="https://i.imgur.com/pYQBSG8.png" class="floating-object object-4" alt="Öğrenme objesi">
-                                    <img src="https://i.imgur.com/L4R3Eqd.png" class="floating-object object-5" alt="Öğrenme objesi">
-                                </div>
-                            </div>
+                    <div class="hero-content text-white">
+                        <p class="intro-text mb-2 fade-in-up">MERAKLA ÖĞREN</p>
+                        <h1 class="hero-title mb-3 fade-in-up">Yaratıcılığı<br>merak ile keşfet</h1>
+                        <div class="mt-4 fade-in-up">
+                            <a href="#categories" class="btn btn-light btn-lg rounded-pill px-4 py-2 me-3">KEŞFET</a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 py-2"><i class="fas fa-sign-in-alt me-1"></i>GİRİŞ YAP</a>
                         </div>
+                    </div>
+                    <div class="hero-objects">
+                        <img src="https://i.imgur.com/dNBZHqm.png" class="hero-object hero-object-1" alt="Öğrenme objesi">
+                        <img src="https://i.imgur.com/K3DUjgL.png" class="hero-object hero-object-2" alt="Öğrenme objesi">
+                        <img src="https://i.imgur.com/7XbUvPn.png" class="hero-object hero-object-3" alt="Öğrenme objesi">
+                        <img src="https://i.imgur.com/pYQBSG8.png" class="hero-object hero-object-4" alt="Öğrenme objesi">
+                        <img src="https://i.imgur.com/qVlUODk.jpg" class="hero-object hero-object-5" alt="Öğrenme objesi">
+                        <img src="https://i.imgur.com/L4R3Eqd.png" class="hero-object hero-object-6" alt="Öğrenme objesi">
+                        <img src="https://i.imgur.com/2YP4ZzF.png" class="hero-object hero-object-7" alt="Öğrenme objesi">
+                        <img src="https://i.imgur.com/8J7HGXs.png" class="hero-object hero-object-8" alt="Öğrenme objesi">
                     </div>
                 </div>
             </div>
@@ -312,53 +308,57 @@
 <style>
     /* Hero Section Styles */
     .hero-section {
+        position: relative;
         overflow: hidden;
     }
     
     .hero-banner {
         position: relative;
-        margin-bottom: 0;
+        overflow: hidden;
     }
     
     .hero-image {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
         position: relative;
-        min-height: 550px;
-        display: flex;
-        align-items: center;
+        overflow: hidden;
     }
     
     .hero-curved-container {
         position: relative;
-        width: 100%;
-        height: 100%;
-        padding: 3rem 0;
+        padding: 5rem 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
     }
     
-    .hero-curved-container::after {
+    .hero-curved-container:after {
         content: '';
         position: absolute;
-        bottom: -2px;
+        bottom: 0;
         left: 0;
         width: 100%;
-        height: 150px;
+        height: 100px;
         background-color: #fff;
-        border-top-left-radius: 50% 60%;
-        border-top-right-radius: 50% 60%;
-        z-index: 1;
+        border-radius: 100% 100% 0 0;
     }
     
     .hero-content {
         position: relative;
         z-index: 2;
-        padding: 2rem 0;
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 20px;
     }
     
     .intro-text {
-        font-size: 1rem;
+        text-transform: uppercase;
         letter-spacing: 2px;
         font-weight: 600;
-        opacity: 0.8;
+        font-size: 1rem;
     }
     
     .hero-title {
@@ -368,100 +368,71 @@
         margin-bottom: 1.5rem;
     }
     
-    .hero-badge {
-        display: inline-block;
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 1px;
-        padding: 0.5rem 1rem;
-        border-radius: 30px;
-        margin-bottom: 1rem;
-    }
-    
-    .hero-stats {
-        margin-top: 1.5rem;
-    }
-    
-    .hero-stat {
-        text-align: center;
-    }
-    
-    .hero-stat-number {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: white;
-    }
-    
-    .hero-stat-label {
-        font-size: 0.9rem;
-        opacity: 0.8;
-    }
-    
-    /* Floating Objects Styles */
-    .hero-objects-container {
-        position: relative;
-        height: 500px;
+    /* Hero Objects Styles */
+    .hero-objects {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
-        z-index: 2;
+        height: 100%;
+        z-index: 1;
     }
     
-    .floating-image {
-        position: relative;
-        z-index: 2;
-    }
-    
-    .main-image {
+    .hero-object {
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        max-width: 80%;
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        animation: float 6s ease-in-out infinite;
+        max-width: 100px;
     }
     
-    .floating-object {
-        position: absolute;
-        z-index: 3;
-        filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
-    }
-    
-    .object-1 {
+    .hero-object-1 {
         top: 10%;
-        right: 10%;
-        width: 80px;
+        left: 10%;
         animation: float 4s ease-in-out infinite;
     }
     
-    .object-2 {
-        bottom: 15%;
-        right: 15%;
-        width: 70px;
-        animation: float 5s ease-in-out infinite 1s;
-    }
-    
-    .object-3 {
+    .hero-object-2 {
         top: 20%;
-        left: 10%;
-        width: 60px;
-        animation: float 6s ease-in-out infinite 0.5s;
+        right: 15%;
+        animation: float 7s ease-in-out infinite;
     }
     
-    .object-4 {
-        bottom: 25%;
+    .hero-object-3 {
+        bottom: 30%;
         left: 15%;
-        width: 50px;
-        animation: float 7s ease-in-out infinite 1.5s;
+        animation: float 5s ease-in-out infinite;
     }
     
-    .object-5 {
-        top: 40%;
+    .hero-object-4 {
+        bottom: 20%;
+        right: 10%;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .hero-object-5 {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 200px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        animation: float 8s ease-in-out infinite;
+    }
+    
+    .hero-object-6 {
+        top: 15%;
+        right: 30%;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .hero-object-7 {
+        bottom: 15%;
+        left: 30%;
+        animation: float 7s ease-in-out infinite;
+    }
+    
+    .hero-object-8 {
+        bottom: 25%;
         right: 25%;
-        width: 65px;
-        animation: float 5s ease-in-out infinite 2s;
+        animation: float 5s ease-in-out infinite;
     }
     
     @keyframes float {

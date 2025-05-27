@@ -17,51 +17,7 @@
     </div>
     
     <div class="row">
-        <!-- Bildirim Özeti -->
-        <div class="col-12 mb-4">
-            <div class="card bg-light border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="row text-center">
-                        <div class="col-md-3 mb-3 mb-md-0">
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="notification-icon bg-primary text-white rounded-circle mb-2">
-                                    <i class="fas fa-book"></i>
-                                </div>
-                                <h5>{{ today_questions|length }}</h5>
-                                <p class="text-muted mb-0">Bugünkü Sorular</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3 mb-md-0">
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="notification-icon bg-warning text-white rounded-circle mb-2">
-                                    <i class="fas fa-exclamation"></i>
-                                </div>
-                                <h5>{{ past_questions|length }}</h5>
-                                <p class="text-muted mb-0">Geçmiş Tekrarlar</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3 mb-md-0">
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="notification-icon bg-danger text-white rounded-circle mb-2">
-                                    <i class="fas fa-tasks"></i>
-                                </div>
-                                <h5>{{ overdue_tasks|default([])|length }}</h5>
-                                <p class="text-muted mb-0">Geciken Görevler</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="notification-icon bg-success text-white rounded-circle mb-2">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <h5>{{ completed_today|length }}</h5>
-                                <p class="text-muted mb-0">Tamamlananlar</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Notification statistics card removed -->
         
         <!-- Soru Bildirimleri -->
         <div class="col-12 mb-4">
@@ -152,10 +108,7 @@
         </div>
         <!-- Görev Bildirimleri -->
         <div class="col-12 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="mb-0"><i class="fas fa-tasks me-2 text-danger"></i>Görev Bildirimleri</h4>
-                <span class="badge bg-danger rounded-pill">{{ (overdue_tasks|default([])|length) + (new_tasks|default([])|length) }}</span>
-            </div>
+            <!-- Task notifications heading removed -->
             <div class="row g-3">
                 {% if overdue_tasks|default([])|length > 0 %}
                 <div class="col-md-6">
@@ -263,18 +216,7 @@
                 {% endif %}
                 
                 {% if (overdue_tasks|default([])|length == 0) and (new_tasks|default([])|length == 0) and (completed_tasks|default([])|length == 0) %}
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-5">
-                            <i class="fas fa-clipboard-check fa-4x text-muted mb-3"></i>
-                            <h5>Görevlerle ilgili bildirim bulunmuyor</h5>
-                            <p class="text-muted">Henüz görev oluşturmadınız veya tüm görevleriniz planlandığı gibi ilerliyor.</p>
-                            <a href="{{ url_for('add_task') }}" class="btn btn-primary mt-2">
-                                <i class="fas fa-plus me-1"></i> Yeni Görev Oluştur
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                <!-- Task notifications section removed -->
                 {% endif %}
             </div>
         </div>
@@ -299,51 +241,7 @@
         {% endif %}
     </div>
     
-    <!-- Bildirim Ayarları -->
-    <div class="card border-0 shadow-sm mt-4 mb-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Bildirim Ayarları</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <h6>Bildirim Türleri</h6>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="questionNotifications" checked>
-                        <label class="form-check-label" for="questionNotifications">Soru Bildirimleri</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="taskNotifications" checked>
-                        <label class="form-check-label" for="taskNotifications">Görev Bildirimleri</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="systemNotifications" checked>
-                        <label class="form-check-label" for="systemNotifications">Sistem Bildirimleri</label>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <h6>Bildirim Kanalları</h6>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                        <label class="form-check-label" for="emailNotifications">E-posta Bildirimleri</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="browserNotifications">
-                        <label class="form-check-label" for="browserNotifications">Tarayıcı Bildirimleri</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="smsNotifications">
-                        <label class="form-check-label" for="smsNotifications">SMS Bildirimleri</label>
-                    </div>
-                </div>
-            </div>
-            <div class="text-end mt-3">
-                <button class="btn btn-primary" id="saveNotificationSettings">
-                    <i class="fas fa-save me-1"></i> Ayarları Kaydet
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Notification settings card removed -->
 </div>
 {% endblock content %}
 

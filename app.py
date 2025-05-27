@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_migrate import Migrate
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
 from flask_wtf.csrf import CSRFProtect
@@ -302,51 +303,61 @@ def notifications():
     past_questions = Question.query.filter(
         Question.UserId == current_user.UserId,
         Question.IsCompleted == False,
-        Question.RepeatCount < 3,
+        Question.IsHidden == False,
         (
-            (Question.RepeatCount == 0 and db.func.cast(Question.Repeat1Date, db.Date) < today) # İlk tekrar tarihi geçmişse
+            (Question.RepeatCount == 0 and Question.Repeat1Date is not None and db.func.cast(Question.Repeat1Date, db.Date) < today)
             |
-            (Question.RepeatCount == 1 and db.func.cast(Question.Repeat2Date, db.Date) < today) # İkinci tekrar tarihi geçmişse
+            (Question.RepeatCount == 1 and Question.Repeat2Date is not None and db.func.cast(Question.Repeat2Date, db.Date) < today)
             |
-            (Question.RepeatCount == 2 and db.func.cast(Question.Repeat3Date, db.Date) < today) # Üçüncü tekrar tarihi geçmişse
+            (Question.RepeatCount == 2 and Question.Repeat3Date is not None and db.func.cast(Question.Repeat3Date, db.Date) < today)
         )
     ).all()
 
-    # Tamamlanan soruları çek (CompletedAt olmadığı için şimdilik sadece IsCompleted=True olanları sayabiliriz veya bu kısmı atlayabiliriz)
-    # Şimdilik bu kısmı atlıyorum, eğer CompletedAt sütununu eklerseniz burayı güncelleyebiliriz.
-    completed_today = [] # Boş liste gönderiyoruz
-
     # Görev Bildirimleri için verileri çek
+    # Vade tarihi geçmiş ve tamamlanmamış görevler
     overdue_tasks = Task.query.filter(
         Task.UserId == current_user.UserId,
-        Task.Status == 'pending',
-        Task.DueDate < now
+        Task.DueDate < now,
+        Task.Status != 'completed' # Use Status instead of IsCompleted
     ).all()
 
-    completed_tasks = Task.query.filter(
+    # Bugüne ait görevler (vade tarihi bugün olan ve tamamlanmamış)
+    today_tasks = Task.query.filter(
         Task.UserId == current_user.UserId,
-        Task.Status == 'completed',
-        Task.CompletedAt is not None, # CompletedAt Task modelinde var
-        db.func.cast(Task.CompletedAt, db.Date) == today
+        Task.DueDate >= today,
+        Task.DueDate < today + timedelta(days=1),
+        Task.Status != 'completed' # Use Status instead of IsCompleted
     ).all()
 
-    new_tasks = Task.query.filter(
-        Task.UserId == current_user.UserId,
-        Task.CreatedAt is not None,
-        db.func.cast(Task.CreatedAt, db.Date) == today
+
+    # Kitap Bildirimleri için verileri çek (Örnek: okunacak veya incelenecek kitaplar)
+    # Şu an için Kitap modelinde tarih bazlı bir alan olmadığı için genel bir filtreleme yapalım
+    # Örneğin, okunmaya başlanmış ama tamamlanmamış kitaplar
+    reading_books = Book.query.filter(
+        Book.UserId == current_user.UserId,
+        Book.IsCompleted == False
     ).all()
 
-    
-    # Şablonu render et ve verileri gönder
-    return render_template('notifications.html',
-                           today_questions=today_questions,
-                           past_questions=past_questions,
-                           completed_today=completed_today, # Şimdilik boş
-                           overdue_tasks=overdue_tasks,
-                           completed_tasks=completed_tasks,
-                           new_tasks=new_tasks,
-                           section='takipsistemi' # Navbar görünümü için
-                          )
+    # Listening Bildirimleri için verileri çek (Benzer şekilde, dinlenmeye başlanmış ama tamamlanmamış)
+    reading_listenings = Listening.query.filter(
+        Listening.UserId == current_user.UserId,
+        Listening.IsCompleted == False
+    ).all()
+
+
+
+
+    return render_template(
+        'notifications.html',
+        today_questions=today_questions,
+        past_questions=past_questions,
+        overdue_tasks=overdue_tasks,
+        today_tasks=today_tasks,
+        reading_books=reading_books,
+        reading_listenings=reading_listenings,
+        section='takipsistemi', # Set section for sidebar
+        show_sidebar=True # Show sidebar
+    )
 
 @app.route('/mark_notification_read/<int:notification_id>', methods=['POST'])
 @login_required
@@ -375,7 +386,7 @@ def today_questions():
     ).order_by(Question.Repeat1Date).all()
 
     categories = Category.query.all()
-    return render_template('today_questions.html', questions=questions, categories=categories, section='takipsistemi')
+    return render_template('today_questions.html', questions=questions, categories=categories, section='takipsistemi', show_sidebar=True)
 
 @app.route('/past_questions')
 @login_required
@@ -401,7 +412,7 @@ def past_questions():
     ).order_by(Question.Repeat1Date.desc()).all() # Sıralama tercihi kalabilir
     
     categories = Category.query.all()
-    return render_template('index.html', questions=questions, categories=categories, section='no_nav') # index.html şablonunu kullanıyoruz
+    return render_template('past_questions.html', questions=questions, categories=categories, section='takipsistemi', show_sidebar=True)
 
 @app.route('/reminders')
 @login_required
@@ -409,13 +420,13 @@ def reminders():
     today = datetime.now().date()
     questions = Question.query.filter(
         Question.UserId == current_user.UserId,
-        db.text("CAST([Questions].[Repeat1Date] AS DATE) > :today"), # Burayı eski haline getirdik
+        db.text("CAST([Questions].[Repeat1Date] AS DATE) > :today"),
         Question.IsCompleted == False,
         Question.RepeatCount < 3
     ).params(today=today).order_by(Question.Repeat1Date).all()
     
     categories = Category.query.all()
-    return render_template('questions.html', questions=questions, categories=categories, section='no_nav') # questions.html şablonunu kullanıyoruz
+    return render_template('reminders.html', questions=questions, categories=categories, section='takipsistemi', show_sidebar=True)
 
 @app.route('/set_reminder/<int:question_id>', methods=['POST'])
 # ... existing code ...
@@ -482,7 +493,8 @@ def index():
                          motivation_message=motivation_message,
                          categories=categories,
                          questions=questions,
-                         section='takipsistemi'  # Yeni eklenen
+                         section='takipsistemi',  # Set section for sidebar
+                           show_sidebar=True # Show sidebar on index page
                            )
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -553,7 +565,7 @@ def register():
             flash('Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.', 'error')
             return redirect(url_for('register'))
 
-    return render_template('register.html')
+    return render_template('register.html', show_sidebar=False)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -567,28 +579,49 @@ def login():
             # Eğer 'remember' onay kutusu işaretli ise remember=True olarak login_user'ı çağır
             login_user(user, remember=bool(remember)) 
             flash('Başarıyla giriş yaptınız!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('welcome_options'))
         else:
             flash('Geçersiz kullanıcı adı veya şifre', 'danger')
-    return render_template('login.html')
+    return render_template('login.html', show_sidebar=False)
+
+@app.route('/welcome_options') # New route for the welcome options page
+@login_required
+def welcome_options():
+    return render_template('welcome_options.html', show_sidebar=False)
 
 @app.route('/welcome_after_login')
 @login_required
 def welcome_after_login():
-    user = current_user
-    # Hoş geldiniz mesajı için kullanıcının adını al
-    welcome_message = f"Hoş Geldiniz, {user.Name}!" if user.Name else "Hoş Geldiniz!"
-    return render_template('welcome_after_login.html', welcome_message=welcome_message, section='welcome')
+    return redirect(url_for('welcome_options'))
 
 @app.route('/hedefleyici')
 @login_required
 def hedefleyici():
-    return render_template('hedefleyici.html', section='hedefleyici')
+    # Render the main hedefleyici template
+    return render_template('hedefleyici.html', section='hedefleyici', show_sidebar=True)
+
+@app.route('/kitaplarim')
+@login_required
+def kitaplarim():
+    # Placeholder route for Kitaplarım
+    return render_template('kitaplarim.html', section='hedefleyici', show_sidebar=True)
+
+@app.route('/gorevlerim')
+@login_required
+def gorevlerim():
+    # Placeholder route for Görevlerim
+    return render_template('gorevlerim.html', section='hedefleyici', show_sidebar=True)
+
+@app.route('/listening')
+@login_required
+def listening():
+    # Placeholder route for Listening
+    return render_template('listening.html', section='hedefleyici', show_sidebar=True)
 
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    return render_template('profile.html', section='takipsistemi', show_sidebar=True)
 
 @app.route('/logout')
 @login_required
@@ -673,7 +706,7 @@ def add_question():
     
     # Kategorileri veritabanından çek
     categories = Category.query.order_by(Category.Name).all()
-    return render_template('add_question.html', categories=categories, section='takipsistemi')
+    return render_template('add_question.html', categories=categories, section='takipsistemi', show_sidebar=True)
 
 @app.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
 @login_required
@@ -697,7 +730,7 @@ def edit_question(question_id):
             return redirect(url_for('edit_question', question_id=question_id))
     
     categories = Category.query.order_by(Category.Name).all()
-    return render_template('edit_question.html', question=question, categories=categories)
+    return render_template('edit_question.html', question=question, categories=categories, section='takipsistemi', show_sidebar=True)
 
 @app.route('/view_today_question/<int:question_id>')
 @login_required
@@ -712,7 +745,7 @@ def view_today_question(question_id):
     # Favori bilgisini kontrol et
     is_favorite = Favorite.query.filter_by(UserId=current_user.UserId, QuestionId=question.QuestionId).first() is not None
 
-    return render_template('view_today_question.html', question=question, notes=notes, is_favorite=is_favorite, section='no_nav') # section'ı isteğe göre ayarlayabilirsiniz
+    return render_template('view_today_question.html', question=question, notes=notes, is_favorite=is_favorite, section='takipsistemi', show_sidebar=True) # section'ı isteğe göre ayarlayabilirsiniz
 
 @app.route('/view_question/<int:question_id>')
 @login_required
@@ -747,7 +780,10 @@ def view_question(question_id):
                          question=question, 
                          notes=notes,
                          is_favorite=is_favorite,
-                         repeat_status=repeat_status)
+                         repeat_status=repeat_status,
+                         section='takipsistemi', # Set section for sidebar
+                           show_sidebar=True # Show sidebar
+                           )
 
 @app.route('/add_note/<int:question_id>', methods=['POST'])
 @login_required
@@ -815,7 +851,7 @@ def mark_completed(question_id):
 @app.route('/settings')
 @login_required
 def settings():
-    return render_template('settings.html')
+    return render_template('settings.html', section='takipsistemi', show_sidebar=True)
 
 @app.route('/questions')
 @login_required
@@ -851,7 +887,8 @@ def questions():
     return render_template('questions.html',
                          categories_with_counts=categories_with_counts,
                          motivation_message=motivation_message,
-                         section='no_nav'
+                         section='takipsistemi', # Set section for sidebar
+                           show_sidebar=True # Show sidebar
 )
 
 @app.route('/category/<int:category_id>')
@@ -893,7 +930,9 @@ def category_questions(category_id):
                          questions=questions, # Pass filtered questions
                          all_topics=all_topics, # Pass all unique topics for the filter
                          selected_topic=selected_topic, # Pass the currently selected topic
-                         section='takipsistemi')
+                         section='takipsistemi', # Set section for sidebar
+                           show_sidebar=True # Show sidebar
+                           )
 
 @app.route('/favorites')
 @login_required
@@ -919,7 +958,7 @@ def favorites():
 
     questions = query.all()
 
-    return render_template('favorites.html', questions=questions, categories=categories, selected_category_id=category_id, section='no_nav')
+    return render_template('favorites.html', questions=questions, categories=categories, selected_category_id=category_id, section='takipsistemi', show_sidebar=True)
 
 @app.route('/toggle_favorite/<int:question_id>', methods=['POST'])
 @login_required
@@ -1084,7 +1123,7 @@ Eğer bu isteği siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.
         else:
             flash('Bu e-posta adresi ile kayıtlı bir kullanıcı bulunamadı.', 'error')
     
-    return render_template('forgot_password.html')
+    return render_template('forgot_password.html', show_sidebar=False)
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -1113,7 +1152,7 @@ def reset_password(token):
         flash('Şifreniz başarıyla güncellendi. Şimdi giriş yapabilirsiniz.', 'success')
         return redirect(url_for('login'))
     
-    return render_template('reset_password.html')
+    return render_template('reset_password.html', show_sidebar=False)
 
 @app.route('/report')
 @login_required
@@ -1147,18 +1186,20 @@ def report():
         total_time=total_time,
         completed_tasks=completed_tasks,
         overdue_tasks=overdue_tasks,
-        completion_rate=completion_rate
+        completion_rate=completion_rate,
+        section='takipsistemi', # Set section for sidebar
+        show_sidebar=True # Show sidebar
     )
 
 @app.route('/pomodoro_settings')
 @login_required
 def pomodoro_settings():
-    return render_template('pomodoro_settings.html')
+    return render_template('pomodoro_settings.html', section='takipsistemi', show_sidebar=True)
 
 @app.route('/timer')
 @login_required
 def timer():
-    return render_template('timer.html', section='no_nav')
+    return render_template('timer.html', section='takipsistemi', show_sidebar=True)
 
 @app.route('/hide_question/<int:question_id>', methods=['POST'])
 @login_required
@@ -1254,7 +1295,7 @@ def progress_report():
 @app.route('/progress')
 @login_required
 def progress():
-    return render_template('progress_report.html')
+    return render_template('progress_report.html', section='takipsistemi', show_sidebar=True)
 
 @app.route('/next_question/<int:current_id>')
 @login_required
@@ -1378,6 +1419,69 @@ def complete_question(question_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/tasks')
+@login_required
+def tasks():
+    filter_type = request.args.get('filter', 'all')
+    
+    # Base query for user's tasks
+    query = Task.query.filter_by(UserId=current_user.UserId)
+    
+    # Apply filters
+    if filter_type == 'overdue':
+        query = query.filter(Task.DueDate < datetime.now(), Task.Status != 'completed')
+    elif filter_type == 'new':
+        query = query.filter(Task.Status == 'new')
+    elif filter_type == 'completed':
+        query = query.filter(Task.Status == 'completed')
+    elif filter_type == 'in_progress':
+        query = query.filter(Task.Status == 'in_progress')
+    
+    # Order by due date (closest first)
+    tasks = query.order_by(Task.DueDate).all()
+    
+    return render_template('tasks.html', tasks=tasks, filter=filter_type, section='takipsistemi', show_sidebar=True)
+
+@app.route('/add_task', methods=['GET', 'POST'])
+@login_required
+def add_task():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        due_date_str = request.form.get('due_date')
+        category = request.form.get('category', 'Genel')
+        priority = request.form.get('priority', 'normal')
+        
+        # Parse the due date
+        try:
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            flash('Geçersiz tarih formatı.', 'danger')
+            return redirect(url_for('add_task'))
+        
+        # Create new task
+        new_task = Task(
+            UserId=current_user.UserId,
+            Title=title,
+            Description=description,
+            DueDate=due_date,
+            Category=category,
+            Priority=priority,
+            Status='new',
+            CreatedAt=datetime.now()
+        )
+        
+        try:
+            db.session.add(new_task)
+            db.session.commit()
+            flash('Görev başarıyla eklendi!', 'success')
+            return redirect(url_for('tasks'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Görev eklenirken bir hata oluştu: {str(e)}', 'danger')
+    
+    return render_template('add_task.html', section='takipsistemi', show_sidebar=True)
 
 # Uygulama başlatıldığında temizleme işlemini yap
 if __name__ == '__main__':
