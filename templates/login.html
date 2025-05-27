@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Giriş{% endblock title %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Giriş Yap</h4>
+                </div>
+                <div class="card-body p-4">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group mb-3">
+                            <label for="username" class="form-label">Kullanıcı Adı</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" required autofocus placeholder="Kullanıcı adınızı girin">
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="password" class="form-label">Şifre</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required placeholder="Şifrenizi girin">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+                            <label class="form-check-label" for="rememberMe">Beni hatırla</label>
+                        </div>
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>Giriş Yap</button>
+                        </div>
+                        <div class="text-center mb-3">
+                            <a href="{{ url_for('forgot_password') }}" class="text-decoration-none">
+                                <i class="fas fa-key me-1"></i>Şifremi Unuttum
+                            </a>
+                        </div>
+                    </form>
+                    <div class="mt-4 text-center">
+                        <p class="text-muted mb-2">Veya şununla giriş yap:</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <button class="btn btn-outline-danger"><i class="fab fa-google me-2"></i>Google</button>
+                            <button class="btn btn-outline-primary"><i class="fab fa-facebook-f me-2"></i>Facebook</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center bg-light py-3">
+                    <p class="mb-0">
+                        Hesabınız yok mu? 
+                        <a href="{{ url_for('register') }}" class="text-primary fw-bold">
+                            Hemen Kayıt Olun!
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+</script>
+{% endblock content %}
