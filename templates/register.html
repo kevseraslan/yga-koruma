@@ -1,121 +1,476 @@
-{% extends "base.html" %}
+{% extends "base_no_nav.html" %}
 
-{% block title %}Kayýt Ol - ReviseMe{% endblock %}
+{% block title %}KayÄ±t Ol - ReviseMe{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        /* Ana Renk ÅžemasÄ± */
+        --primary-color: #6A37B5;
+        --primary-light: #8451D1;
+        --primary-lighter: #A98AE5;
+        --white: #FFFFFF;
+        --light-gray: #F8F9FC;
+        
+        /* Vurgu Renkleri */
+        --accent-turquoise: #2ECDC8;
+        --accent-pink: #F56FAD;
+        --accent-blue: #4A8FE7;
+        --accent-orange: #FF9966;
+    }
+    
+    body {
+        font-family: 'Nunito', sans-serif;
+        background-color: var(--light-gray);
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    /* Ana Dalga Arka PlanÄ± */
+    .wave-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .wave-svg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+    
+    /* Register KartÄ± */
+    .register-card {
+        background-color: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(106, 55, 181, 0.12);
+        padding: 3rem;
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+        z-index: 10;
+    }
+    
+    .register-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(to right, var(--primary-color), var(--accent-turquoise));
+    }
+    
+    .register-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .register-logo img {
+        width: 48px;
+        height: 48px;
+        margin-right: 10px;
+    }
+    
+    .register-logo span {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    .register-title {
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 2rem;
+    }
+    
+    /* Form ElemanlarÄ± */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #444;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        border: 2px solid #e1e5ee;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-lighter);
+        box-shadow: 0 0 0 3px rgba(169, 138, 229, 0.25);
+        outline: none;
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-check-input {
+        margin-right: 0.5rem;
+        width: 18px;
+        height: 18px;
+    }
+    
+    .form-check-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .btn-register {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+        border: none;
+        padding: 0.8rem 1rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(106, 55, 181, 0.3);
+        cursor: pointer;
+    }
+    
+    .btn-register:hover {
+        background: linear-gradient(45deg, var(--primary-light), var(--primary-color));
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(106, 55, 181, 0.4);
+    }
+    
+    .register-footer {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .register-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .register-footer a:hover {
+        color: var(--primary-light);
+        text-decoration: underline;
+    }
+    
+    /* Avantajlar Listesi */
+    .features-list {
+        margin-top: 2rem;
+        padding-left: 0;
+        list-style-type: none;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+    }
+    
+    .feature-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 0.9rem;
+        background: linear-gradient(45deg, var(--primary-lighter), var(--primary-light));
+        color: white;
+    }
+    
+    .feature-text {
+        color: #666;
+        font-size: 0.95rem;
+    }
+    
+    .feature-text strong {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .register-card {
+            padding: 2rem;
+        }
+        
+        .register-title {
+            font-size: 1.5rem;
+        }
+        
+        .features-column {
+            margin-top: 3rem;
+        }
+    }
+</style>
+{% endblock styles %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Kayýt Ol</h4>
+<!-- Dalga Arka PlanÄ± -->
+<div class="wave-bg">
+    <svg class="wave-svg" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#A98AE5" fill-opacity="0.2" d="M0,160L48,160C96,160,192,160,288,186.7C384,213,480,267,576,272C672,277,768,235,864,224C960,213,1056,235,1152,229.3C1248,224,1344,192,1392,176L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+        <path fill="#8451D1" fill-opacity="0.4" d="M0,64L48,96C96,128,192,192,288,202.7C384,213,480,171,576,149.3C672,128,768,128,864,160C960,192,1056,256,1152,261.3C1248,267,1344,213,1392,186.7L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+        <path fill="#6A37B5" fill-opacity="0.6" d="M0,96L48,106.7C96,117,192,139,288,154.7C384,171,480,181,576,186.7C672,192,768,192,864,186.7C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+    </svg>
+</div>
+
+<!-- Register Formu -->
+<div class="container mt-5 mb-5">
+    <div class="row g-0 justify-content-center">
+        <div class="col-lg-5">
+            <div class="register-card">
+                <div class="register-logo">
+                    <i class="fas fa-book-reader" style="font-size: 2rem; color: var(--primary-color);"></i>
+                    <span>ReviseMe</span>
                 </div>
-                <div class="card-body">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
+                
+                <h2 class="register-title">Hesap OluÅŸtur</h2>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Ä°sim</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="surname" class="form-label">Soyisim</label>
+                                <input type="text" class="form-control" id="surname" name="surname" required>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <form method="POST" action="{{ url_for('register') }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="username" class="form-label">Kullanýcý Adý *</label>
-                                <input type="text" class="form-control" id="username" name="username" required maxlength="50">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">E-posta *</label>
-                                <input type="email" class="form-control" id="email" name="email" required maxlength="100">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="first_name" class="form-label">Ad *</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required maxlength="50">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="last_name" class="form-label">Soyad *</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required maxlength="50">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">Þifre *</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="password_confirm" class="form-label">Þifre Tekrar *</label>
-                                <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="class_level" class="form-label">Sýnýf Düzeyi *</label>
-                                <select class="form-select" id="class_level" name="class_level" required>
-                                    <option value="">Seçiniz</option>
-                                    <option value="9">9. Sýnýf</option>
-                                    <option value="10">10. Sýnýf</option>
-                                    <option value="11">11. Sýnýf</option>
-                                    <option value="12">12. Sýnýf</option>
+                    <div class="form-group">
+                        <label for="username" class="form-label">KullanÄ±cÄ± AdÄ±</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">E-posta</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="class_level" class="form-label">SÄ±nÄ±f DÃ¼zeyi</label>
+                                <select class="form-control" id="class_level" name="class_level" required>
+                                    <option value="">SeÃ§iniz</option>
+                                    <option value="9">9. SÄ±nÄ±f</option>
+                                    <option value="10">10. SÄ±nÄ±f</option>
+                                    <option value="11">11. SÄ±nÄ±f</option>
+                                    <option value="12">12. SÄ±nÄ±f</option>
                                     <option value="mezun">Mezun</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="year_of_birth" class="form-label">Doðum Yýlý *</label>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="year_of_birth" class="form-label">DoÄŸum YÄ±lÄ±</label>
                                 <input type="number" class="form-control" id="year_of_birth" name="year_of_birth" min="1990" max="2010" required>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="area" class="form-label">Alan *</label>
-                                <select class="form-select" id="area" name="area" required>
-                                    <option value="">Seçiniz</option>
-                                    <option value="sayisal">Sayýsal</option>
-                                    <option value="sozel">Sözel</option>
-                                    <option value="esitagirlik">Eþit Aðýrlýk</option>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="area" class="form-label">Alan</label>
+                                <select class="form-control" id="area" name="area" required>
+                                    <option value="">SeÃ§iniz</option>
+                                    <option value="sayisal">SayÄ±sal</option>
+                                    <option value="sozel">SÃ¶zel</option>
+                                    <option value="esitagirlik">EÅŸit AÄŸÄ±rlÄ±k</option>
                                     <option value="dil">Dil</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="aim" class="form-label">Hedef *</label>
-                                <input type="text" class="form-control" id="aim" name="aim" placeholder="Örn: Týp Fakültesi" required maxlength="100">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="aim" class="form-label">Hedef</label>
+                                <input type="text" class="form-control" id="aim" name="aim" placeholder="Ã–rn: TÄ±p FakÃ¼ltesi" required>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="security_question" class="form-label">Güvenlik Sorusu *</label>
-                                <select class="form-select" id="security_question" name="security_question" required>
-                                    <option value="">Seçiniz</option>
-                                    <option value="ilk_okul">Ýlk okulunuzun adý nedir?</option>
-                                    <option value="anne_kizlik">Annenizin kýzlýk soyadý nedir?</option>
-                                    <option value="dogum_yeri">Doðum yeriniz neresidir?</option>
-                                    <option value="evcil_hayvan">Ýlk evcil hayvanýnýzýn adý nedir?</option>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="security_question" class="form-label">GÃ¼venlik Sorusu</label>
+                                <select class="form-control" id="security_question" name="security_question" required>
+                                    <option value="">SeÃ§iniz</option>
+                                    <option value="ilk_okul">Ä°lk okulunuzun adÄ± nedir?</option>
+                                    <option value="anne_kizlik">Annenizin kÄ±zlÄ±k soyadÄ± nedir?</option>
+                                    <option value="dogum_yeri">DoÄŸum yeriniz neresidir?</option>
+                                    <option value="evcil_hayvan">Ä°lk evcil hayvanÄ±nÄ±zÄ±n adÄ± nedir?</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="security_answer" class="form-label">Güvenlik Cevabý *</label>
-                                <input type="text" class="form-control" id="security_answer" name="security_answer" required maxlength="200">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="security_answer" class="form-label">GÃ¼venlik CevabÄ±</label>
+                                <input type="text" class="form-control" id="security_answer" name="security_answer" required>
                             </div>
                         </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Kayýt Ol</button>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password" class="form-label">Åžifre</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
                         </div>
-                    </form>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label">Åžifre Tekrar</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">
+                            <a href="#">KullanÄ±m ÅžartlarÄ±</a> ve <a href="#">Gizlilik PolitikasÄ±</a>'nÄ± kabul ediyorum.
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn-register">KayÄ±t Ol</button>
+                </form>
+                
+                <div class="register-footer">
+                    <p>Zaten hesabÄ±nÄ±z var mÄ±? <a href="{{ url_for('login') }}">GiriÅŸ YapÄ±n</a></p>
                 </div>
-                <div class="card-footer text-center">
-                    <p class="mb-0">Zaten hesabýnýz var mý? <a href="{{ url_for('login') }}">Giriþ Yap</a></p>
-                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 d-none d-lg-block features-column">
+            <div class="register-card">
+                <h4 class="mb-4 text-center" style="color: var(--primary-color);">ReviseMe ile Neler Yapabilirsiniz?</h4>
+                
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Bilimsel Tekrar Sistemi</strong> ile bilgilerinizi kalÄ±cÄ± hale getirin
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Kategorize EdilmiÅŸ Sorular</strong> ile organize Ã§alÄ±ÅŸÄ±n
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Ä°lerleme Takibi</strong> ile geliÅŸiminizi gÃ¶rselleÅŸtirin
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>AkÄ±llÄ± Bildirimler</strong> ile tekrar zamanlarÄ±nÄ±zÄ± kaÃ§Ä±rmayÄ±n
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Kitap ve Materyal Takibi</strong> ile Ã§alÄ±ÅŸma kaynaklarÄ±nÄ±zÄ± yÃ¶netin
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Mobil Uyumlu TasarÄ±m</strong> ile her cihazdan eriÅŸim saÄŸlayÄ±n
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
+
+<div class="mt-4 text-center mb-5">
+    <a href="{{ url_for('welcome') }}" style="color: var(--primary-color); text-decoration: none;">
+        <i class="fas fa-arrow-left mr-2"></i> Ana Sayfaya DÃ¶n
+    </a>
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+<script>
+    // Åžifre eÅŸleÅŸme kontrolÃ¼
+    document.addEventListener('DOMContentLoaded', function() {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Åžifreler eÅŸleÅŸmiyor');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+        
+        password.addEventListener('change', validatePassword);
+        confirmPassword.addEventListener('keyup', validatePassword);
+    });
+</script>
+{% endblock extra_scripts %}

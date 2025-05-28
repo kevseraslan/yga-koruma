@@ -879,6 +879,11 @@
             }
         }
     </style>
+    <style>
+        .navbar, .navbar * { z-index: 1050 !important; }
+        .dropdown-menu { z-index: 2000 !important; }
+        body, html { overflow-x: auto !important; }
+    </style>
     {% block styles %}{% endblock %}
     {% block extra_styles %}{% endblock %}
     <!-- JavaScript Kütüphaneleri -->
@@ -1000,13 +1005,6 @@
                     <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'index' else '' }}">
                         <i class="fas fa-home"></i> <span>Ana Sayfa</span>
                     </a>
-                    <a href="{{ url_for('notifications') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'notifications' else '' }}">
-                        <i class="fas fa-bell"></i> <span>Bildirimler</span>
-                        <span class="badge bg-danger rounded-pill ms-auto notification-badge">{{ notification_count if notification_count else '' }}</span>
-                    </a>
-                    <a href="{{ url_for('questions') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'questions' else '' }}">
-                        <i class="fas fa-question-circle"></i> <span>Sorularım</span>
-                    </a>
                     <a href="{{ url_for('add_question') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'add_question' else '' }}">
                         <i class="fas fa-plus-circle"></i> <span>Yeni Soru Ekle</span>
                     </a>
@@ -1089,23 +1087,30 @@
                             <ul class="navbar-nav ms-auto">
                                 <!-- Notifications Dropdown - Visible on larger screens -->
                                 <li class="nav-item dropdown d-none d-lg-inline-block">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle position-relative" href="#" id="navbarDropdownNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-bell"></i>
                                         {% if notification_count %}
                                         <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">{{ notification_count }}</span>
                                         {% endif %}
                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="navbarDropdownNotifications">
-                                        <h6 class="dropdown-header">Bildirim Merkezi</h6>
-                                        <a class="dropdown-item d-flex align-items-center" href="{{ url_for('notifications') }}">
-                                            <div class="me-3">
-                                                <div class="icon-circle bg-primary text-white">
-                                                    <i class="fas fa-bell"></i>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="navbarDropdownNotifications" style="min-width:340px;max-width:400px;">
+                                        <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                        {% for n in notifications %}
+                                          <li>
+                                            <div class="dropdown-item d-flex align-items-start">
+                                              <div class="icon-circle bg-primary text-white me-3">
+                                                {% if n.type == 'Bugün' %}<i class="fas fa-calendar-day"></i>{% elif n.type == 'Gecikmiş' %}<i class="fas fa-history"></i>{% elif n.type == 'Motive' %}<i class="fas fa-bolt"></i>{% else %}<i class="fas fa-bell"></i>{% endif %}
+                                              </div>
+                                              <div class="flex-grow-1">
+                                                <div class="fw-bold">
+                                                  {% if n.type == 'Bugün' %}Bugünkü Sorular{% elif n.type == 'Gecikmiş' %}Geçmiş Tekrarlar{% elif n.type == 'Motive' %}Motivasyon{% else %}Bildirim{% endif %}
                                                 </div>
+                                                <div class="small text-muted">{{ n.msg }}</div>
+                                              </div>
                                             </div>
-                                            <div>Tüm bildirimleri görüntüle</div>
-                                        </a>
-                                    </div>
+                                          </li>
+                                        {% endfor %}
+                                    </ul>
                                 </li>
                                 
                                 <!-- Theme Toggle -->
@@ -1365,6 +1370,18 @@
                 }
             });
         }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var dropdownTrigger = document.getElementById('navbarDropdownNotifications');
+        if (dropdownTrigger) {
+            dropdownTrigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                var dropdown = new bootstrap.Dropdown(dropdownTrigger);
+                dropdown.toggle();
+            });
+        }
+    });
     </script>
 </body>
 </html>

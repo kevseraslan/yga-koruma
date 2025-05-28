@@ -487,11 +487,14 @@ def index():
     ]
     motivation_message = random.choice(motivation_messages)
 
-    # Kategorileri getir (questions verisi)
+    # Kategorileri ve her kategorinin soru sayısını getir
     categories = Category.query.all()
-    
-    # Kullanıcının sorularını getir (questions verisi)
-    questions = Question.query.filter_by(UserId=current_user.UserId, IsHidden=False).order_by(Question.QuestionId.desc()).all()
+    for category in categories:
+        category.question_count = Question.query.filter_by(
+            UserId=current_user.UserId,
+            CategoryId=category.CategoryId,
+            IsHidden=False
+        ).count()
 
     return render_template('index.html',
                          daily_questions_count=daily_questions_count,
@@ -501,10 +504,9 @@ def index():
                          tasks_count=tasks_count,
                          motivation_message=motivation_message,
                          categories=categories,
-                         questions=questions,
-                         section='takipsistemi',  # Set section for sidebar
-                           show_sidebar=True # Show sidebar on index page
-                           )
+                         section='takipsistemi',
+                         show_sidebar=True
+                         )
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -870,7 +872,7 @@ def questions():
 
     # Rastgele motive mesajı seç (bu kısım kalabilir veya kaldırılabilir)
     motivation_messages = [
-        "Her gün bir adım daha ileriye!",
+        "Her gün bir adım daha ileri!",
         "Baş başarı yolunda her soru bir fırsat!",
         "Bugün çalış, yarın başar!",
         "Küçük adımlar büyük başarılar getirir!",
@@ -1765,3 +1767,69 @@ if __name__ == '__main__':
         db.create_all()
         create_categories()  # Kategorileri oluştur
     app.run(host='127.0.0.1', port=5000, debug=True)
+
+# Bildirimleri tüm template'lere otomatik ekle
+@app.context_processor
+def inject_notifications():
+    try:
+        if not current_user.is_authenticated:
+            return dict(notifications=[], notification_count=0)
+        today = datetime.now().date()
+        # Bugünkü sorular
+        today_questions = Question.query.filter(
+            Question.UserId == current_user.UserId,
+            Question.IsCompleted == False,
+            Question.IsHidden == False,
+            (
+                (Question.RepeatCount == 0 and Question.Repeat1Date is not None and db.func.cast(Question.Repeat1Date, db.Date) == today)
+                |
+                (Question.RepeatCount == 1 and Question.Repeat2Date is not None and db.func.cast(Question.Repeat2Date, db.Date) == today)
+                |
+                (Question.RepeatCount == 2 and Question.Repeat3Date is not None and db.func.cast(Question.Repeat3Date, db.Date) == today)
+            )
+        ).all()
+        today_count = len(today_questions)
+        # Geçmiş tekrarlar
+        past_questions = Question.query.filter(
+            Question.UserId == current_user.UserId,
+            Question.IsCompleted == False,
+            Question.IsHidden == False,
+            (
+                (Question.RepeatCount == 0 and Question.Repeat1Date is not None and db.func.cast(Question.Repeat1Date, db.Date) < today)
+                |
+                (Question.RepeatCount == 1 and Question.Repeat2Date is not None and db.func.cast(Question.Repeat2Date, db.Date) < today)
+                |
+                (Question.RepeatCount == 2 and Question.Repeat3Date is not None and db.func.cast(Question.Repeat3Date, db.Date) < today)
+            )
+        ).all()
+        past_count = len(past_questions)
+        # Motive mesajları
+        motivation_messages = [
+            f"DEBUG: Bugün: {today_count}, Geçmiş: {past_count}",
+            "Her gün bir adım daha ileri! Bugünün hedeflerini tamamlamak için harekete geç.",
+            "Başarı, küçük adımların toplamıdır! Bugün de bir adım at.",
+            "Zorluklarla karşılaştığında vazgeçme, mola ver ve devam et!",
+            "Küçük adımlar büyük başarılar getirir! Bugün bir soruyu tamamla.",
+            "Bugün dünden daha iyi ol! Hedefine yaklaşıyorsun.",
+            "Başarı yolunda ilerliyorsun! Her tekrar seni güçlendirir.",
+            "Kendine inan, başarabilirsin!"
+        ]
+        import random
+        motivation = random.choice(motivation_messages)
+        notifications = []
+        if today_count > 0:
+            notifications.append({
+                'type': 'Bugün',
+                'msg': f"Bugün çözmen gereken {today_count} soru var. Harikasın!"
+            })
+        if past_count > 0:
+            notifications.append({
+                'type': 'Gecikmiş',
+                'msg': f"{past_count} tekrarın gecikmiş, şimdi tam zamanı!"
+            })
+        notifications.append({'type': 'Motive', 'msg': motivation})
+        notification_count = today_count + past_count
+        return dict(notifications=notifications, notification_count=notification_count)
+    except Exception as e:
+        print('Context processor hatası:', e)
+        return dict(notifications=[], notification_count=0)

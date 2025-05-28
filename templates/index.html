@@ -2,816 +2,679 @@
 
 {% block title %}Ana Sayfa - ReviseMe{% endblock %}
 
-{% block extra_styles %}
+{% block styles %}
 <style>
-    /* Custom styles for the index page */
-    .hero-banner {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        border-radius: 10px;
-        padding: 2rem;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    :root {
+        /* Ana Renk Şeması */
+        --primary-color: #6A37B5;
+        --primary-light: #8451D1;
+        --primary-lighter: #A98AE5;
+        --white: #FFFFFF;
+        --light-gray: #F8F9FC;
+        
+        /* RGB formatında renkler */
+        --primary-color-rgb: 106, 55, 181;
+        --primary-light-rgb: 132, 81, 209;
+        --primary-lighter-rgb: 169, 138, 229;
+        
+        /* Vurgu Renkleri */
+        --accent-turquoise: #2ECDC8;
+        --accent-pink: #F56FAD;
+        --accent-blue: #4A8FE7;
+        --accent-orange: #FF9966;
+        
+        /* Vurgu Renkleri RGB */
+        --accent-turquoise-rgb: 46, 205, 200;
+        --accent-pink-rgb: 245, 111, 173;
+        --accent-blue-rgb: 74, 143, 231;
+        --accent-orange-rgb: 255, 153, 102;
     }
     
-    .quick-actions-bar {
-        background-color: white;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-    
-    .category-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
-        border: none;
-        border-radius: 10px;
+    /* Header Dalga Arka Planı */
+    .header-wave {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 180px;
+        z-index: -1;
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
-    .category-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    .wave-svg {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
     }
     
-    .category-image {
-        height: 120px;
-        background-position: center;
-        background-size: cover;
-    }
-    
-    /* Category-specific styles */
-    .category-icon[data-category="Matematik"] { background-color: #4e73df; }
-    .category-icon[data-category="Fizik"] { background-color: #1cc88a; }
-    .category-icon[data-category="Kimya"] { background-color: #f6c23e; }
-    .category-icon[data-category="Biyoloji"] { background-color: #36b9cc; }
-    .category-icon[data-category="Edebiyat"] { background-color: #e74a3b; }
-    .category-icon[data-category="Tarih"] { background-color: #fd7e14; }
-    .category-icon:not([data-category="Matematik"]):not([data-category="Fizik"]):not([data-category="Kimya"]):not([data-category="Biyoloji"]):not([data-category="Edebiyat"]):not([data-category="Tarih"]) { background-color: #4e73df; }
-    
-    .category-progress[data-category="Matematik"] { background-color: #4e73df; }
-    .category-progress[data-category="Fizik"] { background-color: #1cc88a; }
-    .category-progress[data-category="Kimya"] { background-color: #f6c23e; }
-    .category-progress[data-category="Biyoloji"] { background-color: #36b9cc; }
-    .category-progress[data-category="Edebiyat"] { background-color: #e74a3b; }
-    .category-progress[data-category="Tarih"] { background-color: #fd7e14; }
-    .category-progress:not([data-category="Matematik"]):not([data-category="Fizik"]):not([data-category="Kimya"]):not([data-category="Biyoloji"]):not([data-category="Edebiyat"]):not([data-category="Tarih"]) { background-color: #4e73df; }
-    
-    .category-badge[data-category="Matematik"] { background-color: #4e73df; }
-    .category-badge[data-category="Fizik"] { background-color: #1cc88a; }
-    .category-badge[data-category="Kimya"] { background-color: #f6c23e; }
-    .category-badge[data-category="Biyoloji"] { background-color: #36b9cc; }
-    .category-badge[data-category="Edebiyat"] { background-color: #e74a3b; }
-    .category-badge[data-category="Tarih"] { background-color: #fd7e14; }
-    .category-badge:not([data-category="Matematik"]):not([data-category="Fizik"]):not([data-category="Kimya"]):not([data-category="Biyoloji"]):not([data-category="Edebiyat"]):not([data-category="Tarih"]) { background-color: #4e73df; }
-    
-    .motivational-box {
-        background: linear-gradient(135deg, #36b9cc 0%, #1a8a98 100%);
-        border-radius: 10px;
-        padding: 1.5rem;
-        color: white;
+    /* Ana İçerik Kartları */
+    .page-header {
+        color: var(--primary-color);
         margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding-top: 2rem;
+        font-weight: 700;
+        position: relative;
     }
     
-    .progress-summary {
+    .page-subheader {
+        color: #777;
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+    }
+    
+    .dashboard-card {
         background-color: white;
-        border-radius: 10px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
     
-    .recommended-study {
-        margin-top: 2rem;
-    }
-    
-    .study-card {
-        transition: transform 0.3s ease;
-        height: 100%;
-    }
-    
-    .study-card:hover {
+    .dashboard-card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary-color), var(--accent-turquoise));
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0;
+    }
+    
+    .card-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+        font-size: 1.3rem;
+    }
+    
+    /* Kategori Kartları - Altıgen Yapı */
+    .categories-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+    
+    .category-item {
+        position: relative;
+        width: 200px;
+        height: 230px;
+        margin: 25px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1;
+        perspective: 1000px;
+    }
+    
+    .category-item:hover {
+        transform: translateY(-10px);
+    }
+    
+    .hexagon {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        box-shadow: 0 10px 30px rgba(106, 55, 181, 0.15);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        transform-style: preserve-3d;
+    }
+    
+    .category-item:hover .hexagon {
+        box-shadow: 0 15px 40px rgba(106, 55, 181, 0.25);
+        transform: rotateY(5deg) rotateX(5deg);
+    }
+    
+    .hexagon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(to right, var(--primary-color), var(--accent-turquoise));
+    }
+    
+    .hexagon::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: radial-gradient(circle at top right, rgba(var(--primary-color-rgb), 0.05) 0%, transparent 60%);
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .category-item:hover .hexagon::after {
+        opacity: 1;
+    }
+    
+    .category-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.2rem;
+        background: linear-gradient(45deg, var(--primary-lighter), var(--primary-light));
+        color: white;
+        font-size: 1.8rem;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 5px 15px rgba(106, 55, 181, 0.3);
+    }
+    
+    .category-item:hover .category-icon {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(106, 55, 181, 0.4);
+    }
+    
+    .category-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 0.7rem;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+    
+    .category-item:hover .category-name {
+        transform: translateY(-3px);
+    }
+    
+    .category-count {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        background-color: var(--light-gray);
+        color: var(--primary-color);
+        font-size: 0.95rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .category-item:hover .category-count {
+        background: linear-gradient(45deg, var(--primary-lighter), var(--primary-light));
+        color: white;
+        box-shadow: 0 5px 15px rgba(106, 55, 181, 0.2);
+    }
+    
+    /* Motivasyon Kartı */
+    .motivation-card {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .motivation-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .motivation-svg {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        opacity: 0.6;
+    }
+    
+    .motivation-svg-2 {
+        position: absolute;
+        bottom: -30px;
+        left: -20px;
+        opacity: 0.4;
+    }
+    
+    .motivation-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .motivation-icon-container {
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .motivation-icon {
+        font-size: 2.5rem;
+        opacity: 0.7;
+    }
+    
+    .motivation-quote {
+        font-size: 1.3rem;
+        font-weight: 500;
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        text-align: center;
+    }
+    
+    .motivation-author {
+        font-weight: 600;
+        text-align: right;
+        font-size: 1.1rem;
+    }
+    
+    .motivation-card::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 20px;
+        font-size: 150px;
+        opacity: 0.15;
+        font-family: Georgia, serif;
+        z-index: 1;
+    }
+    
+    /* İstatistik Kutuları */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-box {
+        background-color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        margin: 0 auto 1rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-icon.primary {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+    }
+    
+    .stat-icon.success {
+        background: linear-gradient(45deg, var(--accent-turquoise), #20A5A0);
+        color: white;
+    }
+    
+    .stat-icon.warning {
+        background: linear-gradient(45deg, var(--accent-orange), #FF7733);
+        color: white;
+    }
+    
+    .stat-icon.info {
+        background: linear-gradient(45deg, var(--accent-blue), #2A7AD2);
+        color: white;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    /* Aktivite Kartı */
+    .activity-card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s ease;
+    }
+    
+    .activity-item:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .activity-time {
+        font-size: 0.8rem;
+        color: #999;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .categories-container {
+            justify-content: center;
+        }
+        
+        .category-item {
+            margin: 15px 10px;
+        }
+        
+        .dashboard-card {
+            padding: 1.2rem;
+        }
+        
+        .motivation-quote {
+            font-size: 1.1rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block page_content %}
-<div class="p-0">
+<!-- Header Dalga Arka Planı -->
+<div class="header-wave">
+    <svg class="wave-svg" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#A98AE5" fill-opacity="0.2" d="M0,96L48,106.7C96,117,192,139,288,122.7C384,107,480,53,576,53.3C672,53,768,107,864,133.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+        <path fill="#8451D1" fill-opacity="0.15" d="M0,96L48,90.7C96,85,192,75,288,85.3C384,96,480,128,576,122.7C672,117,768,75,864,58.7C960,43,1056,53,1152,80C1248,107,1344,149,1392,170.7L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+    </svg>
+</div>
+
+<div class="container">
     <!-- Geri Dön Butonu -->
-    <div class="container mt-3 mb-2">
+    <div class="mt-3 mb-2">
         <a href="{{ url_for('welcome_options') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> Geri Dön
         </a>
     </div>
-    <!-- Hero Banner with Quick Stats -->
-    <div class="hero-banner position-relative mb-0">
-        <div class="hero-image">
-            <div class="hero-curved-container">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6 hero-content text-white">
-                            <div class="hero-badge mb-2 fade-in-up">HOŞ GELDİNİZ</div>
-                            <p class="intro-text mb-2 fade-in-up">MERAKLA ÖĞREN</p>
-                            <h1 class="hero-title mb-3 fade-in-up">Yaratıcılığı<br>merak ile keşfet</h1>
-                            <p class="lead mb-4 fade-in-up d-none d-md-block">ReviseMe ile çalışmalarınızı takip edin, sorularınızı kategorize edin ve bilimsel tekrar yöntemiyle kalıcı öğrenme sağlayın.</p>
-                            
-
-                            
-
-                        </div>
-                        <div class="col-lg-6 position-relative d-none d-lg-block">
-                            <div class="hero-objects">
-                                <img src="https://i.imgur.com/dNBZHqm.png" class="hero-object hero-object-1" alt="Öğrenme objesi">
-                                <img src="https://i.imgur.com/K3DUjgL.png" class="hero-object hero-object-2" alt="Öğrenme objesi">
-                                <img src="https://i.imgur.com/7XbUvPn.png" class="hero-object hero-object-3" alt="Öğrenme objesi">
-                                <img src="https://i.imgur.com/pYQBSG8.png" class="hero-object hero-object-4" alt="Öğrenme objesi">
-                                <img src="https://i.imgur.com/qVlUODk.jpg" class="hero-object hero-object-5" alt="Öğrenme objesi">
-                                <img src="https://i.imgur.com/L4R3Eqd.png" class="hero-object hero-object-6" alt="Öğrenme objesi">
-                                <img src="https://i.imgur.com/2YP4ZzF.png" class="hero-object hero-object-7" alt="Öğrenme objesi">
-                                <img src="https://i.imgur.com/8J7HGXs.png" class="hero-object hero-object-8" alt="Öğrenme objesi">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    
+    <!-- Sayfa Başlığı -->
+    <h1 class="page-header">Hoş Geldin, {{ current_user.Name }}!</h1>
+    <p class="page-subheader">Bugünkü çalışmalarını takip et ve ilerlemeni görüntüle.</p>
+    
+    <!-- İstatistik Kutuları -->
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-icon primary">
+                <i class="fas fa-tasks"></i>
             </div>
+            <div class="stat-value">{{ daily_questions_count }}</div>
+            <div class="stat-label">Bugünkü Sorular</div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-icon info">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="stat-value">{{ total_questions_count }}</div>
+            <div class="stat-label">Toplam Sorular</div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-icon success">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-value">{{ books_count }}</div>
+            <div class="stat-label">Kitaplar</div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-icon warning">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="stat-value">{{ ted_talks_count }}</div>
+            <div class="stat-label">İzlenen TEDx</div>
         </div>
     </div>
     
-    <!-- Quick Actions Bar -->
-    <div class="quick-actions-bar bg-white py-3 shadow-sm sticky-top">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center">
-                        <div class="quick-search me-3 flex-grow-1">
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                                <input type="text" class="form-control bg-light border-start-0" placeholder="Soru veya kategori ara..." id="quickSearch">
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Motivasyon Kartı -->
+            <div class="motivation-card">
+                <div class="motivation-background">
+                    <svg width="200" height="200" viewBox="0 0 200 200" class="motivation-svg" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M42.9,-73.8C55.3,-67.3,65.1,-55.3,70.3,-42C75.5,-28.7,76.1,-14.3,76,0.1C76,14.4,75.3,28.9,69.7,41.9C64.1,55,53.6,66.6,40.5,73.3C27.3,80,13.7,81.8,-0.2,82.1C-14,82.4,-28.1,81.2,-40.8,74.7C-53.5,68.2,-64.8,56.6,-72.5,42.9C-80.3,29.3,-84.4,14.7,-84.2,0.1C-84,-14.4,-79.6,-28.8,-71.6,-42C-63.6,-55.1,-51.9,-67,-38.9,-73.3C-25.8,-79.6,-12.9,-80.3,1.2,-82.4C15.3,-84.5,30.6,-80.2,42.9,-73.8Z" transform="translate(100 100)" fill="url(#grad1)" />
+                    </svg>
+                    <svg width="120" height="120" viewBox="0 0 120 120" class="motivation-svg-2" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M38.5,-66.8C50.5,-60.1,61.3,-50.3,67.9,-38.3C74.5,-26.3,77,-12.2,75.8,1.4C74.7,14.9,69.9,29.7,62.3,43.4C54.6,57.1,44.2,69.6,31,74.9C17.8,80.2,1.9,78.2,-13.4,74.8C-28.7,71.3,-43.5,66.3,-54.3,56.8C-65.1,47.2,-71.9,33.1,-75.3,18.1C-78.7,3.1,-78.7,-12.8,-73.3,-26.4C-67.9,-39.9,-57.2,-51.2,-44.8,-57.7C-32.4,-64.2,-18.4,-66,-3.9,-60.1C10.5,-54.2,26.6,-73.5,38.5,-66.8Z" transform="translate(60 60)" fill="rgba(255,255,255,0.07)" />
+                    </svg>
                 </div>
-                <div class="col-md-6">
-                    <div class="d-flex justify-content-md-end mt-3 mt-md-0 gap-2">
-                        <a href="{{ url_for('add_question') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i> Soru Ekle</a>
-                        <a href="{{ url_for('tasks') }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-tasks me-1"></i> Görevlerim</a>
-                        <a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-calendar-alt me-1"></i> Planlarım</a>
+                <div class="motivation-content">
+                    <div class="motivation-icon-container">
+                        <i class="fas fa-quote-left motivation-icon"></i>
                     </div>
+                    <p class="motivation-quote">{{ motivation_message }}</p>
+                    <p class="motivation-author">ReviseMe</p>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="container py-4">
-        <!-- Dashboard Summary -->
-        <div class="row mb-4">
-            <div class="col-lg-8">
-                <!-- Motivasyon Mesajı -->
-                <div id="motivationBox" class="mb-4">
-                    <div class="alert alert-primary border-0 shadow-sm rounded-3" style="font-size:1.1em; border-left: 5px solid #0d6efd;">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span id="motivationText"><i class="fas fa-bolt text-primary me-2"></i> {{ motivation_message|default('Her gün bir adım daha ileri! Bugünün hedeflerini tamamlamak için harekete geçin.') }}</span>
-                            <button type="button" class="btn-close" aria-label="Kapat" onclick="document.getElementById('motivationBox').style.display='none';"></button>
-                        </div>
+            
+            <!-- Kategoriler -->
+            <div id="categories" class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Kategoriler</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-th-large"></i>
                     </div>
                 </div>
                 
-                <!-- Progress Summary -->
-                <div class="card border-0 shadow-sm rounded-3 mb-4">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Çalışma İlerlemen</h5>
-                            <span class="badge bg-success rounded-pill">Bu hafta: 12 saat</span>
+                <div class="categories-container">
+                    {% for category in categories %}
+                        {% if category.Name != 'İngilizce' and category.Name != 'Test Kategorisi' %}
+                        <a href="/category/{{ category.CategoryId }}" style="text-decoration: none;">
+                            <div class="category-item">
+                                <div class="hexagon">
+                                    <div class="category-icon">
+                                        {% if category.Name == 'Matematik' %}
+                                            <i class="fas fa-calculator"></i>
+                                        {% elif category.Name == 'Türk Dili ve Edebiyatı' %}
+                                            <i class="fas fa-book"></i>
+                                        {% elif category.Name == 'Fizik' %}
+                                            <i class="fas fa-atom"></i>
+                                        {% elif category.Name == 'Kimya' %}
+                                            <i class="fas fa-flask"></i>
+                                        {% elif category.Name == 'Biyoloji' %}
+                                            <i class="fas fa-dna"></i>
+                                        {% elif category.Name == 'Tarih' %}
+                                            <i class="fas fa-landmark"></i>
+                                        {% elif category.Name == 'Coğrafya' %}
+                                            <i class="fas fa-globe-americas"></i>
+                                        {% elif category.Name == 'Felsefe' %}
+                                            <i class="fas fa-brain"></i>
+                                        {% elif category.Name == 'Din' %}
+                                            <i class="fas fa-pray"></i>
+                                        {% elif category.Name == 'Yabancı Dil' %}
+                                            <i class="fas fa-language"></i>
+                                        {% else %}
+                                            <i class="fas fa-folder"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="category-name">{{ category.Name }}</div>
+                                    <div class="category-count">{{ category.question_count }} Soru</div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Son Aktiviteler -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Son Aktiviteler</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-item">
+                        <div class="activity-icon bg-primary text-white">
+                            <i class="fas fa-clock"></i>
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="progress-circle position-relative" style="width: 60px; height: 60px;">
-                                        <svg width="60" height="60" viewBox="0 0 60 60">
-                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="5"/>
-                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#4e73df" stroke-width="5" stroke-dasharray="157" stroke-dashoffset="47" transform="rotate(-90 30 30)"/>
-                                        </svg>
-                                        <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                            <span class="fw-bold">70%</span>
-                                        </div>
-                                    </div>
-                                    <div class="ms-3">
-                                        <h6 class="mb-0">Tamamlanan</h6>
-                                        <small class="text-muted">28/40 soru</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="progress-circle position-relative" style="width: 60px; height: 60px;">
-                                        <svg width="60" height="60" viewBox="0 0 60 60">
-                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="5"/>
-                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#1cc88a" stroke-width="5" stroke-dasharray="157" stroke-dashoffset="78.5" transform="rotate(-90 30 30)"/>
-                                        </svg>
-                                        <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                            <span class="fw-bold">50%</span>
-                                        </div>
-                                    </div>
-                                    <div class="ms-3">
-                                        <h6 class="mb-0">Tekrarlar</h6>
-                                        <small class="text-muted">15/30 tekrar</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="progress-circle position-relative" style="width: 60px; height: 60px;">
-                                        <svg width="60" height="60" viewBox="0 0 60 60">
-                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#e9ecef" stroke-width="5"/>
-                                            <circle cx="30" cy="30" r="25" fill="none" stroke="#f6c23e" stroke-width="5" stroke-dasharray="157" stroke-dashoffset="94.2" transform="rotate(-90 30 30)"/>
-                                        </svg>
-                                        <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                            <span class="fw-bold">40%</span>
-                                        </div>
-                                    </div>
-                                    <div class="ms-3">
-                                        <h6 class="mb-0">Görevler</h6>
-                                        <small class="text-muted">8/20 görev</small>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Bugünün Soruları</div>
+                            <div class="activity-time">{{ daily_questions_count }} soru çözülmeyi bekliyor</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-success text-white">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Görev Tamamlandı</div>
+                            <div class="activity-time">Son 24 saatte tamamlanan görevler</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-info text-white">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Yeni Kitap Eklendi</div>
+                            <div class="activity-time">{{ books_count }} kitap kütüphanenizde</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-warning text-white">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Başarı Kazanıldı</div>
+                            <div class="activity-time">Düzenli çalışma için +5 puan</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-lg-4">
-                <!-- Upcoming Tasks -->
-                <div class="card border-0 shadow-sm rounded-3 h-100">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h5 class="card-title mb-0"><i class="fas fa-calendar-day text-primary me-2"></i>Bugünkü Görevler</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex align-items-center py-3 px-4">
-                                <div class="form-check me-3">
-                                    <input class="form-check-input" type="checkbox" value="" id="task1">
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Matematik Tekrarı</h6>
-                                    <small class="text-muted">10:00 - 11:30</small>
-                                </div>
-                                <span class="badge bg-warning text-dark ms-auto">30dk kaldı</span>
-                            </li>
-                            <li class="list-group-item d-flex align-items-center py-3 px-4">
-                                <div class="form-check me-3">
-                                    <input class="form-check-input" type="checkbox" value="" id="task2">
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Fizik Soruları</h6>
-                                    <small class="text-muted">13:00 - 14:30</small>
-                                </div>
-                                <span class="badge bg-info text-dark ms-auto">Bugün</span>
-                            </li>
-                            <li class="list-group-item d-flex align-items-center py-3 px-4">
-                                <div class="form-check me-3">
-                                    <input class="form-check-input" type="checkbox" value="" id="task3">
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Kimya Tekrarı</h6>
-                                    <small class="text-muted">16:00 - 17:00</small>
-                                </div>
-                                <span class="badge bg-info text-dark ms-auto">Bugün</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="card-footer bg-white border-0 text-center py-3">
-                        <a href="{{ url_for('tasks') }}" class="btn btn-sm btn-outline-primary">Tüm Görevleri Görüntüle</a>
+            <!-- Tarih ve Saat -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Bugün</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-calendar-day"></i>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Categories Section -->
-        <div id="categories" class="my-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">Kategoriler</h2>
-                    <p class="text-muted mb-0">Başarı yolunda her soru bir fırsat!</p>
-                </div>
-                <div class="d-flex gap-2 align-items-center">
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="categoryFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-filter me-1"></i> Filtrele
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="categoryFilterDropdown">
-                            <li><a class="dropdown-item" href="#">Tüm Kategoriler</a></li>
-                            <li><a class="dropdown-item" href="#">En Çok Soru</a></li>
-                            <li><a class="dropdown-item" href="#">En Son Eklenen</a></li>
-                            <li><a class="dropdown-item" href="#">Favorilerim</a></li>
-                        </ul>
-                    </div>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-secondary active"><i class="fas fa-th"></i></button>
-                        <button type="button" class="btn btn-outline-secondary"><i class="fas fa-list"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Kategori Kartları -->
-        <div class="row g-4 justify-content-center">
-            {% for category in categories %}
-                {% if category.Name != 'İngilizce' %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 transition-card">
-                        <div class="card-img-top position-relative overflow-hidden" style="height: 160px;">
-                            <div class="category-image w-100 h-100" 
-                                 {% if category.Name == 'Matematik' %}
-                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?math,numbers,geometry') no-repeat center center; background-size: cover;"
-                                 {% elif category.Name == 'Fizik' %}
-                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?physics,science,atom') no-repeat center center; background-size: cover;"
-                                 {% elif category.Name == 'Kimya' %}
-                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?chemistry,molecule,lab') no-repeat center center; background-size: cover;"
-                                 {% elif category.Name == 'Biyoloji' %}
-                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?biology,cell,nature') no-repeat center center; background-size: cover;"
-                                 {% elif category.Name == 'Edebiyat' %}
-                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?literature,books,library') no-repeat center center; background-size: cover;"
-                                 {% elif category.Name == 'Tarih' %}
-                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?history,ancient,museum') no-repeat center center; background-size: cover;"
-                                 {% else %}
-                                 style="background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://source.unsplash.com/featured/600x400/?education,study,learning') no-repeat center center; background-size: cover;"
-                                 {% endif %}>
-                            </div>
-                            <div class="category-icon position-absolute top-0 end-0 m-3 p-2 rounded-circle" style="width: 40px; height: 40px;"
-                                 data-category="{{ category.Name }}">
-                                <i class="{% if category.Name == 'Matematik' %}fas fa-calculator
-                                          {% elif category.Name == 'Fizik' %}fas fa-atom
-                                          {% elif category.Name == 'Kimya' %}fas fa-flask
-                                          {% elif category.Name == 'Biyoloji' %}fas fa-dna
-                                          {% elif category.Name == 'Edebiyat' %}fas fa-book
-                                          {% elif category.Name == 'Tarih' %}fas fa-landmark
-                                          {% else %}fas fa-graduation-cap{% endif %} text-white"></i>
-                            </div>
-                            <div class="progress position-absolute bottom-0 start-0 end-0 rounded-0" style="height: 6px;">
-                                <div class="progress-bar category-progress" role="progressbar" 
-                                     style="width: {{ category.completion_percentage|default(0) }}%;" 
-                                     data-category="{{ category.Name }}"
-                                     aria-valuenow="{{ category.completion_percentage|default(0) }}" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="card-title mb-0">{{ category.Name }}</h5>
-                                <span class="badge rounded-pill category-badge" data-category="{{ category.Name }}">{{ category.question_count|default(0) }} Soru</span>
-                            </div>
-                            <p class="card-text small text-muted mb-3">{{ category.description|default('Bu kategoride çeşitli sorular bulunmaktadır. Çalışmaya başlamak için tıklayın.') }}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="small">
-                                    <span class="text-muted">Tamamlanan:</span> <span class="fw-bold">{{ category.completion_percentage|default(0) }}%</span>
-                                </div>
-                                <a href="/category/{{ category.CategoryId }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Görüntüle</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            {% endfor %}
-            
-            <!-- Add Category Card -->
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 border-0 border-dashed shadow-sm rounded-4 transition-card bg-light">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-4" style="min-height: 280px;">
-                        <div class="text-center mb-3">
-                            <div class="btn btn-light btn-lg rounded-circle mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-plus fa-2x text-primary"></i>
-                            </div>
-                            <h5 class="card-title">Yeni Kategori Ekle</h5>
-                            <p class="card-text text-muted small">Kendi çalışma kategorinizi oluşturun ve sorularınızı düzenleyin.</p>
-                        </div>
-                        <a href="#" class="btn btn-primary rounded-pill px-4">Kategori Ekle</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Önerilen Çalışma Bölümü -->
-        <div class="recommended-section my-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">Önerilen Çalışmalar</h2>
-                    <p class="text-muted mb-0">Sizin için özel olarak hazırlanmış çalışma planları</p>
-                </div>
-                <a href="#" class="btn btn-outline-primary rounded-pill px-3">Tümünü Görüntüle</a>
-            </div>
-            
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 transition-card">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="study-plan-icon me-3 d-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width: 50px; height: 50px;">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <div>
-                                    <h5 class="card-title mb-0">Günlük Tekrar Planı</h5>
-                                    <p class="card-text small text-muted mb-0">25 dakika</p>
-                                </div>
-                            </div>
-                            <p class="card-text">Etkili öğrenme için günlük tekrar planınızı oluşturun ve takip edin.</p>
-                            <div class="progress mb-3" style="height: 8px;">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-light text-primary">5 soru kaldı</span>
-                                <a href="#" class="btn btn-sm btn-primary rounded-pill px-3">Devam Et</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 transition-card">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="study-plan-icon me-3 d-flex align-items-center justify-content-center rounded-circle bg-success text-white" style="width: 50px; height: 50px;">
-                                    <i class="fas fa-brain"></i>
-                                </div>
-                                <div>
-                                    <h5 class="card-title mb-0">Haftalık Program</h5>
-                                    <p class="card-text small text-muted mb-0">3 saat</p>
-                                </div>
-                            </div>
-                            <p class="card-text">Tüm dersleri kapsayan haftalık çalışma programınızı oluşturun.</p>
-                            <div class="progress mb-3" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-light text-success">2/7 gün tamamlandı</span>
-                                <a href="#" class="btn btn-sm btn-success rounded-pill px-3">Devam Et</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 transition-card">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="study-plan-icon me-3 d-flex align-items-center justify-content-center rounded-circle bg-warning text-white" style="width: 50px; height: 50px;">
-                                    <i class="fas fa-bolt"></i>
-                                </div>
-                                <div>
-                                    <h5 class="card-title mb-0">Hızlı Tekrar</h5>
-                                    <p class="card-text small text-muted mb-0">15 dakika</p>
-                                </div>
-                            </div>
-                            <p class="card-text">Kısa sürede maksimum verim için hızlı tekrar modülünü deneyin.</p>
-                            <div class="progress mb-3" style="height: 8px;">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-light text-warning">Yeni</span>
-                                <a href="#" class="btn btn-sm btn-warning rounded-pill px-3 text-white">Başla</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-        
-        <!-- Önerilen Çalışma Planları -->
-        <div class="row mt-5">
-            <div class="col-lg-8">
-                <h2 class="mb-4"><i class="fas fa-calendar-alt me-2 text-primary"></i>Önerilen Çalışma Planları</h2>
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Günlük Tekrar Planı</h5>
-                        <p class="card-text">Etkili öğrenme için günlük tekrar planınızı oluşturun ve takip edin.</p>
-                        <div class="progress mb-3" style="height: 10px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <a href="#" class="btn btn-primary">Plana Git</a>
-                    </div>
-                </div>
-                
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Haftalık Çalışma Programı</h5>
-                        <p class="card-text">Tüm dersleri kapsayan haftalık çalışma programınızı oluşturun.</p>
-                        <div class="progress mb-3" style="height: 10px;">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <a href="#" class="btn btn-primary">Plana Git</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4">
-                <h2 class="mb-4"><i class="fas fa-bell me-2 text-primary"></i>Son Aktiviteler</h2>
-                <div class="card shadow-sm">
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item d-flex align-items-center py-3">
-                            <div class="activity-icon bg-primary text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-plus"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">Yeni soru eklendi</h6>
-                                <p class="text-muted small mb-0">Matematik kategorisine "Türev Uygulamaları" konusunda yeni bir soru eklendi.</p>
-                            </div>
-                            <small class="text-muted">2 saat önce</small>
-                        </div>
-                        <div class="list-group-item d-flex align-items-center py-3">
-                            <div class="activity-icon bg-success text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">Soru tekrarı tamamlandı</h6>
-                                <p class="text-muted small mb-0">Fizik kategorisindeki "Newton Yasaları" sorusunun 2. tekrarını tamamladınız.</p>
-                            </div>
-                            <small class="text-muted">Dün</small>
-                        </div>
-                        <div class="list-group-item d-flex align-items-center py-3">
-                            <div class="activity-icon bg-warning text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">Görev zamanı eklendi</h6>
-                                <p class="text-muted small mb-0">"Matematik Çalışması" görevinde 45 dakika çalışma süresi kaydedildi.</p>
-                            </div>
-                            <small class="text-muted">2 gün önce</small>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-light text-center">
-                        <a href="#" class="text-decoration-none">Tüm Aktiviteleri Görüntüle</a>
-                    </div>
+                <div class="text-center py-3">
+                    <div id="current-time" style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color);"></div>
+                    <div id="current-date" style="font-size: 1.2rem; color: #777;"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- CSS Stilleri -->
-<style>
-    .hero-banner {
-        margin-top: -1.5rem; /* Navbar altındaki boşluğu kaldırmak için */
-    }
-    
-    .hero-image {
-        background-color: #2a9d8f !important;
-        position: relative;
-        height: 500px !important;
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-    }
-    
-    .hero-curved-container {
-        position: relative;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-    }
-    
-    .hero-curved-container:after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 30%;
-        background-color: #fff;
-        border-top-left-radius: 50% 100%;
-        border-top-right-radius: 50% 100%;
-        transform: scale(1.5);
-    }
-    
-    .hero-content {
-        position: relative;
-        z-index: 10;
-        padding-left: 10%;
-        max-width: 600px;
-    }
-    
-    .intro-text {
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 500;
-    }
-    
-    .hero-title {
-        font-size: 3.5rem;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-    
-    .hero-objects {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 5;
-        pointer-events: none;
-    }
-    
-    .hero-object {
-        position: absolute;
-        animation: float 3s ease-in-out infinite alternate;
-    }
-    
-    .hero-object-1 {
-        top: 10%;
-        right: 15%;
-        width: 80px;
-        animation-delay: 0s;
-    }
-    
-    .hero-object-2 {
-        top: 60%;
-        right: 25%;
-        width: 60px;
-        animation-delay: 0.5s;
-    }
-    
-    .hero-object-3 {
-        top: 15%;
-        right: 35%;
-        width: 50px;
-        animation-delay: 1s;
-    }
-    
-    .hero-object-4 {
-        top: 70%;
-        right: 10%;
-        width: 70px;
-        animation-delay: 1.5s;
-    }
-    
-    .hero-object-5 {
-        top: 5%;
-        right: 5%;
-        width: 65px;
-        animation-delay: 0.8s;
-    }
-    
-    .hero-object-6 {
-        top: 25%;
-        right: 55%;
-        width: 55px;
-        animation-delay: 1.2s;
-    }
-    
-    .hero-object-7 {
-        top: 8%;
-        left: 15%;
-        width: 70px;
-        animation-delay: 0.3s;
-    }
-    
-    .hero-object-8 {
-        top: 65%;
-        left: 10%;
-        width: 50px;
-        animation-delay: 1.7s;
-    }
-    
-    @keyframes float {
-        0% {
-            transform: translateY(0) rotate(0deg);
-        }
-        100% {
-            transform: translateY(-20px) rotate(5deg);
-        }
-    }
-    
-    /* Daire şeklindeki kategori kartları için stiller */
-    .progress-ring-container {
-        width: 200px;
-        height: 200px;
-    }
-    
-    .progress-ring {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-    
-    .progress-ring-circle-bg {
-        fill: transparent;
-        stroke: #e9ecef;
-        stroke-width: 8;
-    }
-    
-    .progress-ring-circle {
-        fill: transparent;
-        stroke-width: 8;
-        stroke-linecap: round;
-        transition: stroke-dasharray 0.5s ease;
-    }
-    
-    .category-circle {
-        width: 160px;
-        height: 160px;
-        border-radius: 50%;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-        position: absolute;
-        top: 20px;
-        left: 20px;
-    }
-    
-    .category-circle:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-    
-    .category-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.3);
-        transition: background-color 0.3s ease;
-    }
-    
-    .category-circle:hover .category-overlay {
-        background-color: rgba(0,0,0,0.1);
-    }
-    
-    .category-title {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #333;
-        transition: color 0.3s ease;
-    }
-    
-    a:hover .category-title {
-        color: var(--primary-color);
-    }
-    
-    .motivation-quote {
-        font-style: italic;
-        color: var(--dark-color);
-        text-align: center;
-        padding: 1rem;
-        margin: 1rem 0;
-        border-left: 4px solid var(--primary-color);
-        background-color: #f8f9fc;
-    }
-    
-    .transition-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .transition-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
-    
-    .activity-icon {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-</style>
-
-<!-- JavaScript Kodları -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Motivasyon mesajları listesi
-        const motivationMessages = [
-            "Her gün bir adım daha ileri! Bugünün hedeflerini tamamlamak için harekete geçin.",
-            "Başarı, her gün biraz daha fazla çaba göstermektir. Bugün dünden daha iyi ol!",
-            "Bilgi güçtür. Düzenli tekrarlarla bilgilerinizi kalıcı hale getirin.",
-            "Küçük adımlar, büyük sonuçlar doğurur. Bugün küçük bir hedef belirleyin ve gerçekleştirin.",
-            "Zorluklarla karşılaştığınızda, vazgeçmeyin. Her zorluk, daha güçlü olmanız için bir fırsattır."
-        ];
+    // Tarih ve saat güncelleme
+    function updateDateTime() {
+        const now = new Date();
+        const timeElement = document.getElementById('current-time');
+        const dateElement = document.getElementById('current-date');
         
-        // Rastgele bir motivasyon mesajı seç
-        const randomMessage = motivationMessages[Math.floor(Math.random() * motivationMessages.length)];
+        // Saat formatı
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        timeElement.textContent = `${hours}:${minutes}:${seconds}`;
         
-        // Eğer sunucudan gelen bir mesaj yoksa, rastgele bir mesaj göster
-        const motivationText = document.getElementById('motivationText');
-        if (motivationText.textContent.trim() === '<i class="fas fa-bolt text-primary me-2"></i>') {
-            motivationText.innerHTML = `<i class="fas fa-bolt text-primary me-2"></i>${randomMessage}`;
-        }
-    });
-    
-    // Kategori filtreleme fonksiyonu (gerekirse)
-    function filterQuestions() {
-        var categoryId = document.getElementById("categoryFilter").value;
-        var url = "{{ url_for('index') }}";
-        if (categoryId) {
-            url += "?category=" + categoryId;
-        }
-        window.location.href = url;
+        // Tarih formatı
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateElement.textContent = now.toLocaleDateString('tr-TR', options);
     }
+    
+    // Sayfa yüklendiğinde ve her saniye güncelle
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    });
 </script>
 {% endblock %}
