@@ -3,7 +3,7 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
-    SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://MSI\SQLK/ReviseMe?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
+    SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://E\\SQLEXPRESS/ReviseMe?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes'
     
     # Mail settings
     MAIL_SERVER = 'smtp.gmail.com'

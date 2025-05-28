@@ -2,9 +2,10 @@
 
 {% block title %}Günlük Rapor - ReviseMe{% endblock %}
 
-{% block content %}
+{% block page_content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Günlük Görev Raporu ({{ report_date }})</h2>
+    <h2 class="mb-4 text-primary"><i class="fas fa-file-alt"></i> Günlük Görev Raporu ({{ report_date }})</h2>
+    <!-- Özet Kutucuklar -->
     <div class="row mb-4">
         <div class="col-md-4 mb-2">
             <div class="card text-white bg-success text-center">
@@ -31,6 +32,7 @@
             </div>
         </div>
     </div>
+    <!-- Detaylı Listeler -->
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-4">
@@ -57,6 +59,7 @@
             </div>
         </div>
     </div>
+    <!-- Toplam Çalışma Süresi ve Özet -->
     <div class="card mt-4">
         <div class="card-header bg-secondary text-white">Özet</div>
         <div class="card-body">
@@ -65,6 +68,15 @@
                 <li>Geciken görev sayısı: <b>{{ overdue_count }}</b></li>
                 <li>Toplam çalışma süresi: <b>{{ total_time }} dakika</b></li>
             </ul>
+            {% if completed_count == 0 and overdue_count > 0 %}
+                <div class="alert alert-warning mt-3">Bugün hiç görev tamamlanmadı. Hadi, bir görev tamamlayarak güne güzel bir başlangıç yap!</div>
+            {% elif completed_count > 0 and overdue_count == 0 %}
+                <div class="alert alert-success mt-3">Tebrikler! Bugün tüm görevlerini tamamladın!</div>
+            {% elif completed_count > 0 and overdue_count > 0 %}
+                <div class="alert alert-info mt-3">Bazı görevleri tamamladın, bazıları ise gecikti. Yarın daha iyisi için devam et!</div>
+            {% else %}
+                <div class="alert alert-secondary mt-3">Bugün için görev bulunmuyor.</div>
+            {% endif %}
         </div>
     </div>
 </div>

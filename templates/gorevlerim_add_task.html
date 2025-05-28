@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Görev Ekle - ReviseMe{% endblock %}
+{% block title %}Görev Ekle - Hedefleyici{% endblock %}
 
 {% block page_content %}
 <div class="container mt-4">
@@ -9,28 +9,24 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="mb-0">
-                        <i class="fas fa-tasks"></i> Yeni Görev Ekle
+                        <i class="fas fa-tasks"></i> Yeni Görev Ekle (Hedefleyici)
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('add_task') }}">
+                    <form method="POST" action="{{ url_for('gorevlerim_add_task') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        
                         <div class="mb-3">
                             <label for="title" class="form-label">Görev Başlığı</label>
                             <input type="text" class="form-control" id="title" name="title" required>
                         </div>
-                        
                         <div class="mb-3">
                             <label for="description" class="form-label">Açıklama</label>
                             <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                         </div>
-                        
                         <div class="mb-3">
                             <label for="due_date" class="form-label">Bitiş Tarihi</label>
                             <input type="datetime-local" class="form-control" id="due_date" name="due_date" required>
                         </div>
-                        
                         <div class="mb-3">
                             <label for="priority" class="form-label">Öncelik</label>
                             <select class="form-select" id="priority" name="priority" required>
@@ -39,7 +35,6 @@
                                 <option value="low">Düşük</option>
                             </select>
                         </div>
-                        
                         <div class="mb-3">
                             <label for="category" class="form-label">Kategori</label>
                             <select class="form-select" id="category" name="category" required>
@@ -48,12 +43,11 @@
                                 <option value="hobby">Hobi</option>
                             </select>
                         </div>
-                        
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-plus"></i> Görev Ekle
                             </button>
-                            <a href="{{ url_for('tasks') }}" class="btn btn-secondary">
+                            <a href="{{ url_for('gorevlerim') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Geri Dön
                             </a>
                         </div>

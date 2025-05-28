@@ -16,6 +16,12 @@
 
 {% block page_content %}
 <div class="container-fluid">
+    <!-- Geri Dön Butonu -->
+    <div class="mt-3 mb-2">
+        <a href="{{ url_for('welcome_options') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </a>
+    </div>
     <h1>Hedefleyici</h1>
     
     {# This block will be used by specific hedefleyici sub-pages to insert their content #}

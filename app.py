@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, render_template_string
 from flask_migrate import Migrate
 
 from flask_sqlalchemy import SQLAlchemy
@@ -22,7 +22,7 @@ app.config['SECRET_KEY'] = 'bu-sabit-bir-test-anahtaridir' # TEST AMAÇLI SABİT
 
 # MSSQL bağlantı parametreleri
 driver = "ODBC Driver 17 for SQL Server"
-server = "MSI\\SQLK"
+server = "E\\SQLEXPRESS"
 database = "ReviseMe"
 
 connection_string = f"DRIVER={{{driver}}};SERVER={server};DATABASE={database};Trusted_Connection=yes;TrustServerCertificate=yes;MARS_Connection=yes;"
@@ -166,6 +166,7 @@ class Book(db.Model):
     TotalPages = db.Column(db.Integer)
     StartDate = db.Column(db.DateTime)
     UserId = db.Column(db.Integer, db.ForeignKey('Users.UserId'))
+    IsCompleted = db.Column(db.Boolean, default=False)  # <-- BUNU EKLE!
     user = db.relationship('User', backref='books')
 
 class BookQuote(db.Model):
@@ -242,6 +243,14 @@ class Reminder(db.Model):
     
     user = db.relationship('User', backref='reminders')
     question = db.relationship('Question', backref='reminders')
+
+class Listening(db.Model):
+    __tablename__ = 'Listenings'
+    ListeningId = db.Column(db.Integer, primary_key=True)
+    UserId = db.Column(db.Integer, db.ForeignKey('Users.UserId'))
+    Title = db.Column(db.String(200))
+    IsCompleted = db.Column(db.Boolean, default=False)
+    user = db.relationship('User', backref='listenings')
 
 def create_categories():
     categories = [
@@ -603,14 +612,24 @@ def hedefleyici():
 @app.route('/kitaplarim')
 @login_required
 def kitaplarim():
-    # Placeholder route for Kitaplarım
-    return render_template('kitaplarim.html', section='hedefleyici', show_sidebar=True)
+    books = Book.query.filter_by(UserId=current_user.UserId).all()
+    return render_template('kitaplarim.html', books=books, section='hedefleyici', show_sidebar=True)
 
 @app.route('/gorevlerim')
 @login_required
 def gorevlerim():
-    # Placeholder route for Görevlerim
-    return render_template('gorevlerim.html', section='hedefleyici', show_sidebar=True)
+    # Aktif görevler
+    active_tasks = Task.query.filter_by(UserId=current_user.UserId, Status='new').order_by(Task.DueDate).all()
+    # Son tamamlanan görevler
+    completed_tasks = Task.query.filter_by(UserId=current_user.UserId, Status='completed').order_by(Task.CompletedAt.desc()).all()
+    return render_template(
+        'gorevlerim.html',
+        active_tasks=active_tasks,
+        completed_tasks=completed_tasks,
+        section='hedefleyici',
+        show_sidebar=True,
+        now=datetime.now()
+    )
 
 @app.route('/listening')
 @login_required
@@ -639,42 +658,28 @@ def add_question():
             topic = request.form.get('topic')  # Yeni eklenen alan
             question_image = request.files.get('question_image')
             difficulty = request.form.get('difficulty') # Zorluk seviyesini al
-            
             # Check if required fields (category, topic, and difficulty) are present.
             if not category or not topic or not difficulty:
                 flash('Lütfen tüm zorunlu alanları doldurun.', 'error')
                 return redirect(url_for('add_question'))
-            
-            # Set content to an empty string if not provided (e.g., if the field was removed from HTML)
             content = content if content is not None else ''
-
-            # Görsel yükleme işlemi
             image_path = None
             now = datetime.now() # Soru eklenme zamanı
-            
-            # Tekrar tarihleri şimdiki zamandan 1 dakika, 10 gün ve 20 gün sonraya ayarlanır
             repeat1_date = now + timedelta(minutes=1)
             repeat2_date = now + timedelta(days=10)
             repeat3_date = now + timedelta(days=20)
-
             if question_image and question_image.filename:
                 try:
                     filename = secure_filename(question_image.filename)
                     unique_filename = f"{now.strftime('%Y%m%d_%H%M%S')}_{filename}"
-                    
                     upload_folder = os.path.join(app.static_folder, 'uploads')
                     if not os.path.exists(upload_folder):
                         os.makedirs(upload_folder)
-                    
                     image_path = f"uploads/{unique_filename}"
                     full_path = os.path.join(app.static_folder, 'uploads', unique_filename)
-                    
                     question_image.save(full_path)
-
                 except Exception as e:
                     flash('Görsel yüklenirken bir hata oluştu.', 'error')
-
-            # Yeni soru oluştur
             new_question = Question(
                 UserId=current_user.UserId,
                 Content=content,
@@ -692,20 +697,23 @@ def add_question():
                 Explanation=None,
                 ImagePath=image_path
             )
-            
             db.session.add(new_question)
             db.session.commit()
-            
             flash('Soru başarıyla eklendi.', 'success')
             return redirect(url_for('questions'))
-            
         except Exception as e:
             db.session.rollback()
             flash('Soru eklenirken bir hata oluştu: ' + str(e), 'error')
             return redirect(url_for('add_question'))
-    
     # Kategorileri veritabanından çek
     categories = Category.query.order_by(Category.Name).all()
+    if not categories:
+        # Kategori yoksa otomatik ekle
+        create_categories()
+        categories = Category.query.order_by(Category.Name).all()
+        if not categories:
+            flash('Hiç kategori bulunamadı ve otomatik eklenemedi. Lütfen yöneticinize başvurun.', 'error')
+            return render_template('add_question.html', categories=[], section='takipsistemi', show_sidebar=True)
     return render_template('add_question.html', categories=categories, section='takipsistemi', show_sidebar=True)
 
 @app.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
@@ -1187,7 +1195,7 @@ def report():
         completed_tasks=completed_tasks,
         overdue_tasks=overdue_tasks,
         completion_rate=completion_rate,
-        section='takipsistemi', # Set section for sidebar
+        section='hedefleyici', # Bunu takipsistemi yerine hedefleyici yaptım
         show_sidebar=True # Show sidebar
     )
 
@@ -1468,7 +1476,7 @@ def add_task():
             DueDate=due_date,
             Category=category,
             Priority=priority,
-            Status='new',
+            Status='pending',
             CreatedAt=datetime.now()
         )
         
@@ -1482,6 +1490,274 @@ def add_task():
             flash(f'Görev eklenirken bir hata oluştu: {str(e)}', 'danger')
     
     return render_template('add_task.html', section='takipsistemi', show_sidebar=True)
+
+@app.route('/gorevlerim/add_task', methods=['GET', 'POST'])
+@login_required
+def gorevlerim_add_task():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        due_date_str = request.form.get('due_date')
+        category = request.form.get('category', 'Genel')
+        priority = request.form.get('priority', 'normal')
+        try:
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            flash('Geçersiz tarih formatı.', 'danger')
+            return redirect(url_for('gorevlerim_add_task'))
+        new_task = Task(
+            UserId=current_user.UserId,
+            Title=title,
+            Description=description,
+            DueDate=due_date,
+            Category=category,
+            Priority=priority,
+            Status='pending',
+            CreatedAt=datetime.now()
+        )
+        try:
+            db.session.add(new_task)
+            db.session.commit()
+            flash('Görev başarıyla eklendi!', 'success')
+            return redirect(url_for('gorevlerim'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Görev eklenirken bir hata oluştu: {str(e)}', 'danger')
+            return redirect(url_for('gorevlerim_add_task'))
+    return render_template('gorevlerim_add_task.html', section='hedefleyici', show_sidebar=True)
+
+@app.route('/edit_task/<int:task_id>', methods=['GET', 'POST'])
+@login_required
+def edit_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    if task.UserId != current_user.UserId:
+        flash('Bu görevi düzenleme yetkiniz yok.', 'danger')
+        return redirect(url_for('gorevlerim'))
+    if request.method == 'POST':
+        task.Title = request.form.get('title')
+        task.Description = request.form.get('description')
+        due_date_str = request.form.get('due_date')
+        try:
+            task.DueDate = datetime.strptime(due_date_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            flash('Geçersiz tarih formatı.', 'danger')
+            return redirect(url_for('edit_task', task_id=task_id))
+        task.Priority = request.form.get('priority')
+        task.Category = request.form.get('category')
+        try:
+            db.session.commit()
+            flash('Görev başarıyla güncellendi!', 'success')
+            return redirect(url_for('gorevlerim'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Görev güncellenirken bir hata oluştu: {str(e)}', 'danger')
+    return render_template('edit_task.html', task=task, section='hedefleyici', show_sidebar=True)
+
+@app.route('/complete-task/<int:task_id>', methods=['POST'])
+@login_required
+def complete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    if task.UserId != current_user.UserId:
+        return jsonify({'success': False, 'error': 'Yetkiniz yok.'}), 403
+    try:
+        task.Status = 'completed'
+        task.CompletedAt = datetime.now()
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/delete-task/<int:task_id>', methods=['POST'])
+@login_required
+def delete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    if task.UserId != current_user.UserId:
+        return jsonify({'success': False, 'error': 'Yetkiniz yok.'}), 403
+    try:
+        db.session.delete(task)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    import traceback
+    tb = traceback.format_exc()
+    # Hem terminale hem ekrana bastır
+    print(tb)
+    return render_template_string("""
+    <h1>Bir hata oluştu!</h1>
+    <pre>{{ tb }}</pre>
+    <a href="/">Ana Sayfa</a>
+    """, tb=tb), 500
+
+@app.route('/add_sample_data')
+def add_sample_data():
+    try:
+        # Kategori ekle
+        if not Category.query.filter_by(Name='Test Kategorisi').first():
+            new_cat = Category(Name='Test Kategorisi')
+            db.session.add(new_cat)
+            db.session.commit()
+        cat = Category.query.filter_by(Name='Test Kategorisi').first()
+        # Soru ekle
+        if not Question.query.filter_by(Content='Test sorusu').first():
+            new_q = Question(
+                UserId=current_user.UserId,
+                Content='Test sorusu',
+                CategoryId=cat.CategoryId,
+                Topic='Test',
+                DifficultyLevel='Kolay',
+                PhotoPath=None,
+                IsCompleted=False,
+                IsViewed=False,
+                IsRepeated=False,
+                RepeatCount=0,
+                Repeat1Date=datetime.now(),
+                Repeat2Date=datetime.now(),
+                Repeat3Date=datetime.now(),
+                Explanation='Test açıklama',
+                ImagePath=None
+            )
+            db.session.add(new_q)
+            db.session.commit()
+        return 'Örnek veri eklendi! <a href="/">Ana Sayfa</a>'
+    except Exception as e:
+        return f'Hata: {str(e)}'
+
+@app.route('/add_book', methods=['POST'])
+@login_required
+def add_book():
+    title = request.form.get('title')
+    author = request.form.get('author')
+    total_pages = request.form.get('total_pages')
+    
+    if not all([title, author, total_pages]):
+        flash('Lütfen tüm alanları doldurun.', 'error')
+        return redirect(url_for('kitaplarim'))
+    
+    book = Book(
+        Title=title,
+        Author=author,
+        TotalPages=int(total_pages),
+        CurrentPage=0,
+        UserId=current_user.UserId,
+        StartDate=datetime.utcnow()
+    )
+    
+    db.session.add(book)
+    db.session.commit()
+    
+    flash('Kitap başarıyla eklendi.', 'success')
+    return redirect(url_for('kitaplarim'))
+
+@app.route('/update_book_progress/<int:book_id>', methods=['POST'])
+@login_required
+def update_book_progress(book_id):
+    book = Book.query.get_or_404(book_id)
+    
+    if book.UserId != current_user.UserId:
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Bu işlem için yetkiniz yok.'), 403
+        flash('Bu işlem için yetkiniz yok.', 'error')
+        return redirect(url_for('kitaplarim'))
+    
+    current_page = request.form.get('current_page')
+    if not current_page or not current_page.isdigit() or int(current_page) < 0 or int(current_page) > book.TotalPages:
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Geçerli bir sayfa numarası girin.'), 400
+        flash('Geçerli bir sayfa numarası girin.', 'error')
+        return redirect(url_for('kitaplarim'))
+    
+    book.CurrentPage = int(current_page)
+    db.session.commit()
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(success=True)
+    flash('İlerleme başarıyla güncellendi.', 'success')
+    return redirect(url_for('kitaplarim'))
+
+@app.route('/delete-book/<int:book_id>', methods=['POST'])
+@login_required
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    
+    if book.UserId != current_user.UserId:
+        return jsonify({'success': False, 'message': 'Bu işlem için yetkiniz yok.'})
+    
+    db.session.delete(book)
+    db.session.commit()
+    
+    return jsonify({'success': True})
+
+@app.route('/add_quote/<int:book_id>', methods=['POST'])
+@login_required
+def add_quote(book_id):
+    book = Book.query.get_or_404(book_id)
+    if book.UserId != current_user.UserId:
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Bu işlem için yetkiniz yok.'), 403
+        flash('Bu işlem için yetkiniz yok.', 'error')
+        return redirect(url_for('kitaplarim'))
+    page_number = request.form.get('page_number')
+    content = request.form.get('content')
+    if not all([page_number, content]):
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Lütfen tüm alanları doldurun.'), 400
+        flash('Lütfen tüm alanları doldurun.', 'error')
+        return redirect(url_for('kitaplarim'))
+    quote = BookQuote(
+        BookId=book_id,
+        PageNumber=int(page_number),
+        Content=content
+    )
+    db.session.add(quote)
+    db.session.commit()
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(success=True)
+    flash('Alıntı başarıyla eklendi.', 'success')
+    return redirect(url_for('kitaplarim'))
+
+@app.route('/edit-quote/<int:quote_id>', methods=['POST'])
+@login_required
+def edit_quote(quote_id):
+    quote = BookQuote.query.get_or_404(quote_id)
+    book = Book.query.get_or_404(quote.BookId)
+    if book.UserId != current_user.UserId:
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Bu işlem için yetkiniz yok.'), 403
+        flash('Bu işlem için yetkiniz yok.', 'error')
+        return redirect(url_for('kitaplarim'))
+    page_number = request.form.get('page_number')
+    content = request.form.get('content')
+    if not all([page_number, content]):
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Lütfen tüm alanları doldurun.'), 400
+        flash('Lütfen tüm alanları doldurun.', 'error')
+        return redirect(url_for('kitaplarim'))
+    quote.PageNumber = int(page_number)
+    quote.Content = content
+    db.session.commit()
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(success=True)
+    flash('Alıntı güncellendi.', 'success')
+    return redirect(url_for('kitaplarim'))
+
+@app.route('/delete-quote/<int:quote_id>', methods=['POST'])
+@login_required
+def delete_quote(quote_id):
+    quote = BookQuote.query.get_or_404(quote_id)
+    book = Book.query.get_or_404(quote.BookId)
+    
+    if book.UserId != current_user.UserId:
+        return jsonify({'success': False, 'message': 'Bu işlem için yetkiniz yok.'})
+    
+    db.session.delete(quote)
+    db.session.commit()
+    
+    return jsonify({'success': True})
 
 # Uygulama başlatıldığında temizleme işlemini yap
 if __name__ == '__main__':

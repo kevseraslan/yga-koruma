@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Ana Sayfa - ReviseMe{% endblock title %}
+{% block title %}Ana Sayfa - ReviseMe{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -99,8 +99,14 @@
 </style>
 {% endblock %}
 
-{% block content %}
+{% block page_content %}
 <div class="p-0">
+    <!-- Geri Dön Butonu -->
+    <div class="container mt-3 mb-2">
+        <a href="{{ url_for('welcome_options') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </a>
+    </div>
     <!-- Hero Banner with Quick Stats -->
     <div class="hero-banner position-relative mb-0">
         <div class="hero-image">
@@ -808,4 +814,4 @@
         window.location.href = url;
     }
 </script>
-{% endblock content %}
+{% endblock %}
