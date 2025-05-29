@@ -994,11 +994,14 @@
     
     <div class="container-fluid p-0 main-content">
         <div class="row g-0">
-            {% if request.endpoint and request.endpoint in [
-                'add_question', 'favorites', 'today_questions', 'past_questions', 'timer'
-            ] %}
+            {% if section == 'takip' %}
                 <div class="col-md-3 col-lg-2">
-                    {% include 'components/side_menu.html' %}
+                    {% include 'components/side_menu_takip.html' %}
+                </div>
+                <div class="col-md-9 col-lg-10" id="main-content-col">
+            {% elif section == 'hedef' %}
+                <div class="col-md-3 col-lg-2">
+                    {% include 'components/side_menu_hedef.html' %}
                 </div>
                 <div class="col-md-9 col-lg-10" id="main-content-col">
             {% else %}
