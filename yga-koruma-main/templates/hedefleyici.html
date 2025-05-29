@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Planlayıcı{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        background-color: transparent !important;
+        position: relative;
+    }
+    
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/static/images/pastel-background.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: -1;
+    }
+    
+    h1 {
+        color: #30E8E8;
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 15px rgba(48, 6, 75, 0.8), 0 0 20px rgba(48, 6, 75, 0.4);
+    }
+    
+    p {
+        color: #FFF;
+        font-size: 1.2rem;
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+        margin-bottom: 2rem;
+    }
+    
+    .sub-menu {
+        margin-bottom: 20px;
+    }
+    
+    .sub-menu a {
+        margin-right: 15px;
+        color: #FFF;
+        background-color: rgba(106, 55, 181, 0.8);
+        border: 1px solid rgba(46, 205, 200, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .sub-menu a:hover {
+        background-color: rgba(46, 205, 200, 0.3);
+        border-color: rgba(46, 205, 200, 0.8);
+        transform: translateY(-3px);
+    }
+    
+    /* Simüle edilmiş yıldızlar */
+    @keyframes twinkle {
+        0% { opacity: 0.3; }
+        50% { opacity: 1; }
+        100% { opacity: 0.3; }
+    }
+    
+    .stars {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background-color: white;
+        border-radius: 50%;
+    }
+    
+    .star-1 { top: 10%; left: 20%; animation: twinkle 3s infinite ease-in-out; }
+    .star-2 { top: 15%; left: 50%; animation: twinkle 4s infinite ease-in-out; }
+    .star-3 { top: 25%; left: 80%; animation: twinkle 5s infinite ease-in-out; }
+    .star-4 { top: 40%; left: 10%; animation: twinkle 4.5s infinite ease-in-out; }
+    .star-5 { top: 60%; left: 30%; animation: twinkle 3.5s infinite ease-in-out; }
+    .star-6 { top: 75%; left: 60%; animation: twinkle 4s infinite ease-in-out; }
+    .star-7 { top: 85%; left: 90%; animation: twinkle 3s infinite ease-in-out; }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="stars">
+    <div class="star star-1"></div>
+    <div class="star star-2"></div>
+    <div class="star star-3"></div>
+    <div class="star star-4"></div>
+    <div class="star star-5"></div>
+    <div class="star star-6"></div>
+    <div class="star star-7"></div>
+</div>
+
+<div class="container-fluid">
+    <!-- Geri Dön Butonu -->
+    <div class="mt-3 mb-2">
+        <a href="{{ url_for('welcome_options') }}" class="btn btn-outline-light">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+    <h1>Planlayıcı</h1>
+    
+    {# This block will be used by specific hedefleyici sub-pages to insert their content #}
+    {% block hedefleyici_content %}
+        <p>Lütfen yukarıdaki seçeneklerden birini belirleyin.</p>
+    {% endblock %}
+
+</div>
+{% endblock %} 
