@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Günlük Rapor - ReviseMe{% endblock %}
+
+{% block page_content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary"><i class="fas fa-file-alt"></i> Günlük Görev Raporu ({{ report_date }})</h2>
+    <!-- Özet Kutucuklar -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-success text-center">
+                <div class="card-body">
+                    <div class="fw-bold">Tamamlanan Görevler</div>
+                    <div style="font-size:2rem;">{{ completed_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-danger text-center">
+                <div class="card-body">
+                    <div class="fw-bold">Geciken Görevler</div>
+                    <div style="font-size:2rem;">{{ overdue_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-info text-center">
+                <div class="card-body">
+                    <div class="fw-bold">Tamamlanma Oranı</div>
+                    <div style="font-size:2rem;">%{{ completion_rate }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-primary text-center">
+                <div class="card-body">
+                    <div class="fw-bold">Pomodoro Çalışma</div>
+                    <div style="font-size:2rem;">{{ total_time }} dk</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Detaylı Listeler -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">Tamamlanan Görevler</div>
+                <ul class="list-group list-group-flush">
+                    {% for task in completed_tasks %}
+                    <li class="list-group-item">{{ task.Title }}</li>
+                    {% else %}
+                    <li class="list-group-item text-muted">Bugün tamamlanan görev yok.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">Geciken Görevler</div>
+                <ul class="list-group list-group-flush">
+                    {% for task in overdue_tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>{{ task.Title }}</div>
+                        <div>
+                            <span class="badge bg-danger">{{ task.DueDate.strftime('%d.%m.%Y %H:%M') }}</span>
+                            <a href="{{ url_for('complete_task', task_id=task.TaskId) }}" class="btn btn-sm btn-success ms-2" 
+                               onclick="event.preventDefault(); document.getElementById('complete-task-{{task.TaskId}}').submit();">
+                                <i class="fas fa-check"></i>
+                            </a>
+                            <form id="complete-task-{{task.TaskId}}" action="{{ url_for('complete_task', task_id=task.TaskId) }}" method="post" style="display: none;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            </form>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-muted">Geciken görev yok.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pomodoro Çalışma Bölümü -->
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-clock me-2"></i> Pomodoro Çalışma Kayıtları
+        </div>
+        <div class="card-body">
+            {% if total_time > 0 %}
+                <div class="text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <div class="display-4 fw-bold">{{ total_time }}</div>
+                        <div class="ms-2 text-muted">dakika</div>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" 
+                             aria-valuenow="{{ total_time }}" aria-valuemin="0" aria-valuemax="{{ total_time }}">
+                            {{ total_time }} dakika
+                        </div>
+                    </div>
+                    <div class="text-muted mt-3">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        {% if total_time > 120 %}
+                            Bugün çok verimli çalıştın! Harika bir iş çıkardın.
+                        {% elif total_time > 60 %}
+                            Bugün iyi çalıştın! Devam et.
+                        {% else %}
+                            Bugün çalışmaya başladın! Yarın daha da fazla çalışabilirsin.
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-light text-center">
+                    <i class="fas fa-info-circle me-2"></i> Bugün için kaydedilmiş pomodoro çalışması bulunmuyor.
+                    <div class="mt-2">
+                        <a href="{{ url_for('timer') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-play me-1"></i> Hemen çalışmaya başla
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

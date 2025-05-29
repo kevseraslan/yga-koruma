@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Ders Kategorileri - ReviseMe{% endblock %}
+
+{% block page_content %}
+  <h1>Ders Kategorileri</h1>
+
+  {# Rastgele motive mesajı göster (isteğe bağlı) #}
+  {% if motivation_message %}
+    <p class="text-center text-muted">{{ motivation_message }}</p> {# CSS sınıfı projenize göre değişebilir #}
+  {% endif %}
+
+  {# Kartları içeren row div'i, justify-content-center ile ortalanır #}
+  <div class="row mt-4 justify-content-center"> {# Bu div kartların ortalanmasını sağlar #}
+    {% for item in categories_with_counts %}
+      {# Her kategori için bir kart #}
+      <div class="col-md-4 mb-4"> {# Kart boyutu (isteğe bağlı, CSS çerçevenize bağlı) #}
+        {# Karta tıklanabilir link ekle #}
+        <a href="{{ url_for('category_questions', category_id=item.category.CategoryId) }}" class="card-link" style="text-decoration: none; color: inherit;"> {# Link stili (isteğe bağlı) #}
+          <div class="card h-100"> {# Kart container, eşit yükseklik için h-100 (isteğe bağlı) #}
+            <div class="card-body">
+              <h5 class="card-title text-center mb-3">{{ item.category.Name }}</h5>
+              
+              <p class="card-text text-center mb-0">
+                Toplam Soru Sayısı: <strong>{{ item.count }}</strong>
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+    
+  </div>
+
+{% endblock %}

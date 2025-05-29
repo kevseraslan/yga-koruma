@@ -1,0 +1,680 @@
+{% extends "base.html" %}
+
+{% block title %}Ana Sayfa - ReviseMe{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        /* Ana Renk Şeması */
+        --primary-color: #6A37B5;
+        --primary-light: #8451D1;
+        --primary-lighter: #A98AE5;
+        --white: #FFFFFF;
+        --light-gray: #F8F9FC;
+        
+        /* RGB formatında renkler */
+        --primary-color-rgb: 106, 55, 181;
+        --primary-light-rgb: 132, 81, 209;
+        --primary-lighter-rgb: 169, 138, 229;
+        
+        /* Vurgu Renkleri */
+        --accent-turquoise: #2ECDC8;
+        --accent-pink: #F56FAD;
+        --accent-blue: #4A8FE7;
+        --accent-orange: #FF9966;
+        
+        /* Vurgu Renkleri RGB */
+        --accent-turquoise-rgb: 46, 205, 200;
+        --accent-pink-rgb: 245, 111, 173;
+        --accent-blue-rgb: 74, 143, 231;
+        --accent-orange-rgb: 255, 153, 102;
+    }
+    
+    /* Header Dalga Arka Planı */
+    .header-wave {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 180px;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .wave-svg {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
+    }
+    
+    /* Ana İçerik Kartları */
+    .page-header {
+        color: var(--primary-color);
+        margin-bottom: 2rem;
+        padding-top: 2rem;
+        font-weight: 700;
+        position: relative;
+    }
+    
+    .page-subheader {
+        color: #777;
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+    }
+    
+    .dashboard-card {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary-color), var(--accent-turquoise));
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0;
+    }
+    
+    .card-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+        font-size: 1.3rem;
+    }
+    
+    /* Kategori Kartları - Altıgen Yapı */
+    .categories-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+    
+    .category-item {
+        position: relative;
+        width: 200px;
+        height: 230px;
+        margin: 25px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1;
+        perspective: 1000px;
+    }
+    
+    .category-item:hover {
+        transform: translateY(-10px);
+    }
+    
+    .hexagon {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        box-shadow: 0 10px 30px rgba(106, 55, 181, 0.15);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        transform-style: preserve-3d;
+    }
+    
+    .category-item:hover .hexagon {
+        box-shadow: 0 15px 40px rgba(106, 55, 181, 0.25);
+        transform: rotateY(5deg) rotateX(5deg);
+    }
+    
+    .hexagon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(to right, var(--primary-color), var(--accent-turquoise));
+    }
+    
+    .hexagon::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: radial-gradient(circle at top right, rgba(var(--primary-color-rgb), 0.05) 0%, transparent 60%);
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .category-item:hover .hexagon::after {
+        opacity: 1;
+    }
+    
+    .category-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.2rem;
+        background: linear-gradient(45deg, var(--primary-lighter), var(--primary-light));
+        color: white;
+        font-size: 1.8rem;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 5px 15px rgba(106, 55, 181, 0.3);
+    }
+    
+    .category-item:hover .category-icon {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(106, 55, 181, 0.4);
+    }
+    
+    .category-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 0.7rem;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+    
+    .category-item:hover .category-name {
+        transform: translateY(-3px);
+    }
+    
+    .category-count {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        background-color: var(--light-gray);
+        color: var(--primary-color);
+        font-size: 0.95rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .category-item:hover .category-count {
+        background: linear-gradient(45deg, var(--primary-lighter), var(--primary-light));
+        color: white;
+        box-shadow: 0 5px 15px rgba(106, 55, 181, 0.2);
+    }
+    
+    /* Motivasyon Kartı */
+    .motivation-card {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .motivation-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .motivation-svg {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        opacity: 0.6;
+    }
+    
+    .motivation-svg-2 {
+        position: absolute;
+        bottom: -30px;
+        left: -20px;
+        opacity: 0.4;
+    }
+    
+    .motivation-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .motivation-icon-container {
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .motivation-icon {
+        font-size: 2.5rem;
+        opacity: 0.7;
+    }
+    
+    .motivation-quote {
+        font-size: 1.3rem;
+        font-weight: 500;
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        text-align: center;
+    }
+    
+    .motivation-author {
+        font-weight: 600;
+        text-align: right;
+        font-size: 1.1rem;
+    }
+    
+    .motivation-card::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 20px;
+        font-size: 150px;
+        opacity: 0.15;
+        font-family: Georgia, serif;
+        z-index: 1;
+    }
+    
+    /* İstatistik Kutuları */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-box {
+        background-color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        margin: 0 auto 1rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-icon.primary {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+        color: white;
+    }
+    
+    .stat-icon.success {
+        background: linear-gradient(45deg, var(--accent-turquoise), #20A5A0);
+        color: white;
+    }
+    
+    .stat-icon.warning {
+        background: linear-gradient(45deg, var(--accent-orange), #FF7733);
+        color: white;
+    }
+    
+    .stat-icon.info {
+        background: linear-gradient(45deg, var(--accent-blue), #2A7AD2);
+        color: white;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    /* Aktivite Kartı */
+    .activity-card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s ease;
+    }
+    
+    .activity-item:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .activity-time {
+        font-size: 0.8rem;
+        color: #999;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .categories-container {
+            justify-content: center;
+        }
+        
+        .category-item {
+            margin: 15px 10px;
+        }
+        
+        .dashboard-card {
+            padding: 1.2rem;
+        }
+        
+        .motivation-quote {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<!-- Header Dalga Arka Planı -->
+<div class="header-wave">
+    <svg class="wave-svg" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#A98AE5" fill-opacity="0.2" d="M0,96L48,106.7C96,117,192,139,288,122.7C384,107,480,53,576,53.3C672,53,768,107,864,133.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+        <path fill="#8451D1" fill-opacity="0.15" d="M0,96L48,90.7C96,85,192,75,288,85.3C384,96,480,128,576,122.7C672,117,768,75,864,58.7C960,43,1056,53,1152,80C1248,107,1344,149,1392,170.7L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+    </svg>
+</div>
+
+<div class="container">
+    <!-- Geri Dön Butonu -->
+    <div class="mt-3 mb-2">
+        <a href="{{ url_for('welcome_options') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+    
+    <!-- Sayfa Başlığı -->
+    <h1 class="page-header">Hoş Geldin, {{ current_user.Name }}!</h1>
+    <p class="page-subheader">Bugünkü çalışmalarını takip et ve ilerlemeni görüntüle.</p>
+    
+    <!-- İstatistik Kutuları -->
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-icon primary">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="stat-value">{{ daily_questions_count }}</div>
+            <div class="stat-label">Bugünkü Sorular</div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-icon info">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="stat-value">{{ total_questions_count }}</div>
+            <div class="stat-label">Toplam Sorular</div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-icon success">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-value">{{ books_count }}</div>
+            <div class="stat-label">Kitaplar</div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-icon warning">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="stat-value">{{ ted_talks_count }}</div>
+            <div class="stat-label">İzlenen TEDx</div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Motivasyon Kartı -->
+            <div class="motivation-card">
+                <div class="motivation-background">
+                    <svg width="200" height="200" viewBox="0 0 200 200" class="motivation-svg" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M42.9,-73.8C55.3,-67.3,65.1,-55.3,70.3,-42C75.5,-28.7,76.1,-14.3,76,0.1C76,14.4,75.3,28.9,69.7,41.9C64.1,55,53.6,66.6,40.5,73.3C27.3,80,13.7,81.8,-0.2,82.1C-14,82.4,-28.1,81.2,-40.8,74.7C-53.5,68.2,-64.8,56.6,-72.5,42.9C-80.3,29.3,-84.4,14.7,-84.2,0.1C-84,-14.4,-79.6,-28.8,-71.6,-42C-63.6,-55.1,-51.9,-67,-38.9,-73.3C-25.8,-79.6,-12.9,-80.3,1.2,-82.4C15.3,-84.5,30.6,-80.2,42.9,-73.8Z" transform="translate(100 100)" fill="url(#grad1)" />
+                    </svg>
+                    <svg width="120" height="120" viewBox="0 0 120 120" class="motivation-svg-2" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M38.5,-66.8C50.5,-60.1,61.3,-50.3,67.9,-38.3C74.5,-26.3,77,-12.2,75.8,1.4C74.7,14.9,69.9,29.7,62.3,43.4C54.6,57.1,44.2,69.6,31,74.9C17.8,80.2,1.9,78.2,-13.4,74.8C-28.7,71.3,-43.5,66.3,-54.3,56.8C-65.1,47.2,-71.9,33.1,-75.3,18.1C-78.7,3.1,-78.7,-12.8,-73.3,-26.4C-67.9,-39.9,-57.2,-51.2,-44.8,-57.7C-32.4,-64.2,-18.4,-66,-3.9,-60.1C10.5,-54.2,26.6,-73.5,38.5,-66.8Z" transform="translate(60 60)" fill="rgba(255,255,255,0.07)" />
+                    </svg>
+                </div>
+                <div class="motivation-content">
+                    <div class="motivation-icon-container">
+                        <i class="fas fa-quote-left motivation-icon"></i>
+                    </div>
+                    <p class="motivation-quote">{{ motivation_message }}</p>
+                    <p class="motivation-author">ReviseMe</p>
+                </div>
+            </div>
+            
+            <!-- Kategoriler -->
+            <div id="categories" class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Kategoriler</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-th-large"></i>
+                    </div>
+                </div>
+                
+                <div class="categories-container">
+                    {% for category in categories %}
+                        {% if category.Name != 'İngilizce' and category.Name != 'Test Kategorisi' %}
+                        <a href="/category/{{ category.CategoryId }}" style="text-decoration: none;">
+                            <div class="category-item">
+                                <div class="hexagon">
+                                    <div class="category-icon">
+                                        {% if category.Name == 'Matematik' %}
+                                            <i class="fas fa-calculator"></i>
+                                        {% elif category.Name == 'Türk Dili ve Edebiyatı' %}
+                                            <i class="fas fa-book"></i>
+                                        {% elif category.Name == 'Fizik' %}
+                                            <i class="fas fa-atom"></i>
+                                        {% elif category.Name == 'Kimya' %}
+                                            <i class="fas fa-flask"></i>
+                                        {% elif category.Name == 'Biyoloji' %}
+                                            <i class="fas fa-dna"></i>
+                                        {% elif category.Name == 'Tarih' %}
+                                            <i class="fas fa-landmark"></i>
+                                        {% elif category.Name == 'Coğrafya' %}
+                                            <i class="fas fa-globe-americas"></i>
+                                        {% elif category.Name == 'Felsefe' %}
+                                            <i class="fas fa-brain"></i>
+                                        {% elif category.Name == 'Din' %}
+                                            <i class="fas fa-pray"></i>
+                                        {% elif category.Name == 'Yabancı Dil' %}
+                                            <i class="fas fa-language"></i>
+                                        {% else %}
+                                            <i class="fas fa-folder"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="category-name">{{ category.Name }}</div>
+                                    <div class="category-count">{{ category.question_count }} Soru</div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Son Aktiviteler -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Son Aktiviteler</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-item">
+                        <div class="activity-icon bg-primary text-white">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Bugünün Soruları</div>
+                            <div class="activity-time">{{ daily_questions_count }} soru çözülmeyi bekliyor</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-success text-white">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Görev Tamamlandı</div>
+                            <div class="activity-time">Son 24 saatte tamamlanan görevler</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-info text-white">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Yeni Kitap Eklendi</div>
+                            <div class="activity-time">{{ books_count }} kitap kütüphanenizde</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-warning text-white">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Başarı Kazanıldı</div>
+                            <div class="activity-time">Düzenli çalışma için +5 puan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tarih ve Saat -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Bugün</h2>
+                    <div class="card-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                </div>
+                <div class="text-center py-3">
+                    <div id="current-time" style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color);"></div>
+                    <div id="current-date" style="font-size: 1.2rem; color: #777;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tarih ve saat güncelleme
+    function updateDateTime() {
+        const now = new Date();
+        const timeElement = document.getElementById('current-time');
+        const dateElement = document.getElementById('current-date');
+        
+        // Saat formatı
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+        
+        // Tarih formatı
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateElement.textContent = now.toLocaleDateString('tr-TR', options);
+    }
+    
+    // Sayfa yüklendiğinde ve her saniye güncelle
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    });
+</script>
+{% endblock %}

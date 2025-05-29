@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Favorilerim - ReviseMe{% endblock %}
+
+{% block page_content %}
+<div class="container mt-4">
+    {# <!-- Sekmeli Menü (Modern, Renkli, İkonlu, Aktif sekme vurgulu) KALDIRILDI --> #}
+    <h2 class="mb-4">Favorilerim</h2>
+
+    <!-- Kategori Filtreleme -->
+    <div class="mb-4">
+        <label for="categoryFilter" class="form-label">Ders/Kategori Seçin:</label>
+        <select id="categoryFilter" class="form-select" onchange="filterFavorites()">
+            <option value="">Tüm Kategoriler</option>
+            {% for category in categories %}
+            <option value="{{ category.CategoryId }}" {% if selected_category_id and selected_category_id|int == category.CategoryId %}selected{% endif %}>{{ category.Name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for question in questions %}
+        <div class="col">
+            <div class="card h-100">
+                {% if question.ImagePath or question.PhotoPath %}
+                <img src="{{ url_for('static', filename=question.ImagePath or question.PhotoPath) }}" class="card-img-top" alt="Soru Görseli" style="height: 140px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ question.Content[:100] }}{% if question.Content|length > 100 %}...{% endif %}</h5>
+                </div>
+                <div class="card-footer bg-white border-0 text-center">
+                    <a href="{{ url_for('view_question', question_id=question.QuestionId) }}" class="btn btn-primary w-100"><i class="fas fa-eye"></i> Görüntüle</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% if questions|length == 0 %}
+        <div class="alert alert-info mt-3">Favori soru bulunmuyor.</div>
+        {% endif %}
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    function filterFavorites() {
+        var categoryId = document.getElementById("categoryFilter").value;
+        var url = "{{ url_for('favorites') }}";
+        if (categoryId) {
+            url += "?category=" + categoryId;
+        }
+        window.location.href = url;
+    }
+
+    // Sayfa yüklendiğinde mevcut seçimi ayarla (isteğe bağlı, Flask tarafında yapılıyor)
+    // window.onload = function() {
+    //     const urlParams = new URLSearchParams(window.location.search);
+    //     const category = urlParams.get('category');
+    //     if (category) {
+    //         document.getElementById('categoryFilter').value = category;
+    //     }
+    // }
+</script>
+{% endblock %}
+{% endblock %} 

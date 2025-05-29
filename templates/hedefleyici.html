@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Hedefleyici{% endblock %}
+
+{% block styles %}
+<style>
+    /* Add custom styles for hedefleyici page if needed */
+    .sub-menu {
+        margin-bottom: 20px;
+    }
+    .sub-menu a {
+        margin-right: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Geri Dön Butonu -->
+    <div class="mt-3 mb-2">
+        <a href="{{ url_for('welcome_options') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+    <h1>Hedefleyici</h1>
+    
+    <!-- Alt Menü -->
+    <div class="sub-menu">
+        <a href="{{ url_for('kitaplarim') }}" class="btn btn-primary">
+            <i class="fas fa-book"></i> Kitaplarım
+        </a>
+        <a href="{{ url_for('gorevlerim') }}" class="btn btn-success">
+            <i class="fas fa-tasks"></i> Görevlerim
+        </a>
+        <a href="{{ url_for('listening') }}" class="btn btn-info">
+            <i class="fas fa-headphones"></i> Dinleme
+        </a>
+    </div>
+
+    {# This block will be used by specific hedefleyici sub-pages to insert their content #}
+    {% block hedefleyici_content %}
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-book"></i> Kitaplarım</h5>
+                        <p class="card-text">Okuduğunuz kitapları takip edin ve ilerlemenizi kaydedin.</p>
+                        <a href="{{ url_for('kitaplarim') }}" class="btn btn-primary">Kitaplarım</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-tasks"></i> Görevlerim</h5>
+                        <p class="card-text">Günlük ve haftalık görevlerinizi planlayın ve takip edin.</p>
+                        <a href="{{ url_for('gorevlerim') }}" class="btn btn-success">Görevlerim</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-headphones"></i> Dinleme</h5>
+                        <p class="card-text">Dinleme çalışmalarınızı kaydedin ve takip edin.</p>
+                        <a href="{{ url_for('listening') }}" class="btn btn-info">Dinleme</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+</div>
+{% endblock %} 
