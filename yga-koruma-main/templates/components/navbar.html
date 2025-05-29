@@ -1,16 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">
+    <div class="container-fluid d-flex align-items-center">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
             <i class="fas fa-book-reader me-2"></i>ReviseMe
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- Hamburger Menü Butonu (Her zaman görünür) -->
+        <button id="sidebarToggle" class="btn btn-link ms-2 p-0" type="button" style="font-size: 1.7rem;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}">Ana Sayfa</a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ 'active' if request.endpoint == 'hedefleyici' }}" href="{{ url_for('hedefleyici') }}">Planlayıcı</a>
                 </li>
@@ -39,4 +40,14 @@
             {% endif %}
         </div>
     </div>
-</nav> 
+</nav>
+<style>
+    #sidebarToggle {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        width: 40px;
+        margin-left: 0.5rem;
+    }
+</style> 

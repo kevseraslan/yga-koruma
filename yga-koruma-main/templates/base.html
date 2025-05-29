@@ -456,129 +456,58 @@
         #wrapper {
             display: flex;
             width: 100%;
-            align-items: stretch;
-            overflow-x: hidden;
             min-height: 100vh;
-            position: relative;
+            transition: all 0.3s;
         }
         
         /* Sidebar Styles */
-        #sidebar-wrapper {
-            min-height: 100vh;
-            width: var(--sidebar-width);
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            z-index: 1040;
-            background: linear-gradient(180deg, var(--primary-color), #224abe);
-            color: white;
-            transition: all var(--transition-speed) ease;
-            box-shadow: 3px 0 10px rgba(0,0,0,0.1);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        #sidebar-wrapper::-webkit-scrollbar {
-            width: 5px;
-        }
-        
-        #sidebar-wrapper::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        #sidebar-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 10px;
-        }
-        
-        #sidebar-wrapper .sidebar-heading {
-            padding: 1.2rem 1.5rem;
-            font-size: 1.3rem;
-            font-weight: 700;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        /* Sidebar Items */
-        .sidebar-item {
-            color: rgba(255,255,255,0.8);
-            background-color: transparent;
-            border: none;
-            padding: 0.85rem 1.5rem;
-            transition: all var(--transition-speed) ease;
-            display: flex;
-            align-items: center;
-            border-radius: 0;
-            margin: 2px 0;
-            font-weight: 600;
-            position: relative;
-        }
-        
-        .sidebar-item i {
-            margin-right: 10px;
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .sidebar-item:hover, .sidebar-item.active {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white;
-            padding-left: 1.8rem;
-        }
-        
-        .sidebar-item.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background-color: white;
+        .sidebar-wrapper {
+            width: 250px;
+            transition: margin-left 0.3s, width 0.3s;
         }
         
         /* Content Wrapper */
-        #page-content-wrapper {
+        .main-content-area {
+            flex: 1 1 0%;
             width: 100%;
-            min-height: 100vh;
-            padding-left: var(--sidebar-width);
-            transition: all var(--transition-speed) ease;
+            transition: all 0.3s;
         }
         
-        #page-content-wrapper.no-sidebar-padding {
-            padding-left: 0;
+        #wrapper.toggled .sidebar-wrapper {
+            margin-left: 0;
         }
-
-        .content-container {
-            padding: 1.5rem;
-            width: 100%;
+        
+        #wrapper:not(.toggled) .sidebar-wrapper {
+            margin-left: -250px;
+        }
+        
+        #wrapper:not(.toggled) .main-content-area {
+            width: 100% !important;
+            margin-left: 0 !important;
+        }
+        
+        #wrapper.toggled .main-content-area {
+            margin-left: 0;
         }
         
         /* Mobile Responsive */
         @media (max-width: 991.98px) {
-            #sidebar-wrapper {
-                margin-left: calc(-1 * var(--sidebar-width));
+            .sidebar-wrapper {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1500;
             }
-            
-            #page-content-wrapper {
-                padding-left: 0;
-            }
-            
-            #wrapper.toggled #sidebar-wrapper {
+            #wrapper.toggled .sidebar-wrapper {
                 margin-left: 0;
             }
-            
-            .navbar {
-                padding: 0.5rem 1rem;
+            #wrapper:not(.toggled) .sidebar-wrapper {
+                margin-left: -250px;
             }
-            
-            .sidebar-item {
-                padding: 0.75rem 1.25rem;
-            }
-            
-            .sidebar-item:hover, .sidebar-item.active {
-                padding-left: 1.5rem;
+            .main-content-area {
+                width: 100% !important;
+                margin-left: 0 !important;
             }
         }
         
@@ -992,32 +921,72 @@
     <!-- Header ve Navbar -->
     {% include 'components/navbar.html' %}
     
+    <!-- Sidebar Toggle Button (Hamburger) -->
+    <button id="sidebarToggle" class="btn btn-primary d-md-none position-fixed" style="top: 15px; left: 15px; z-index: 2000;">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        
     <div class="container-fluid p-0 main-content">
-        <div class="row g-0">
-            {% if section == 'takip' %}
-                <div class="col-md-3 col-lg-2">
-                    {% include 'components/side_menu_takip.html' %}
-                </div>
-                <div class="col-md-9 col-lg-10" id="main-content-col">
-            {% elif section == 'hedef' %}
-                <div class="col-md-3 col-lg-2">
-                    {% include 'components/side_menu_hedef.html' %}
-                </div>
-                <div class="col-md-9 col-lg-10" id="main-content-col">
-            {% else %}
-                <div class="col-12" id="main-content-col">
-            {% endif %}
-                    {% block page_content %}{% endblock %}
-                </div>
+        <div id="wrapper">
+            <div class="sidebar-wrapper" id="sidebar-wrapper">
+                {% include 'components/sidebar_main.html' %}
+            </div>
+            <div class="main-content-area" id="main-content-col">
+                {% block page_content %}{% endblock %}
+            </div>
         </div>
     </div>
     
     <!-- Footer -->
     {% include 'components/footer.html' %}
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar-wrapper');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+            });
+        }
+    });
+    </script>
+    <style>
+    /* Sidebar aç/kapa animasyonu */
+    .sidebar-wrapper {
+        transition: margin-left 0.3s;
+        min-height: 100vh;
+        background: #232946;
+                            }
+    .sidebar-collapsed {
+        margin-left: -250px !important;
+    }
+    /* Sidebar kapalıyken ana içerik sola yanaşsın */
+    #sidebar-wrapper.sidebar-collapsed ~ #main-content-col,
+    #sidebar-wrapper.sidebar-collapsed ~ .main-content-area {
+        margin-left: 0 !important;
+        transition: margin-left 0.3s;
+    }
+    @media (min-width: 992px) {
+        #sidebar-wrapper:not(.sidebar-collapsed) ~ #main-content-col,
+        #sidebar-wrapper:not(.sidebar-collapsed) ~ .main-content-area {
+            margin-left: 250px !important;
+            transition: margin-left 0.3s;
+                }
+            }
+    @media (max-width: 991.98px) {
+        .sidebar-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1500;
+                }
+        }
+    </style>
     {% block scripts %}{% endblock %}
 </body>
 </html>
