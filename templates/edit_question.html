@@ -14,6 +14,7 @@
                 </div>
                 <div class="card-body">
                     <form method="POST">
+                        {{ csrf_token() }}
                         <div class="mb-3">
                             <label for="content" class="form-label">Soru İçeriği</label>
                             <textarea class="form-control" id="content" name="content" rows="4" required>{{ question.Content }}</textarea>

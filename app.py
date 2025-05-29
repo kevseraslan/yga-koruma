@@ -377,48 +377,59 @@ def mark_notification_read(notification_id):
 @app.route('/today_questions')
 @login_required
 def today_questions():
+    # Bugünün tarihini al (sadece tarih kısmı)
     today = datetime.now().date()
     
-    # Get questions that are due for review today
+    print(f"DEBUG - Bugün soruları getiriliyor, bugün: {today}")
+    
+    # Bugünkü soruları getir (db.func.cast ile tarih dönüşümünü tekrarlayarak)
     questions = Question.query.filter(
         Question.UserId == current_user.UserId,
         Question.IsCompleted == False,
-        Question.IsHidden == False,
-        (
-            # First repeat is due today
-            (Question.RepeatCount == 0 and Question.Repeat1Date is not None and db.func.cast(Question.Repeat1Date, db.Date) == today) |
-            # Second repeat is due today
-            (Question.RepeatCount == 1 and Question.Repeat2Date is not None and db.func.cast(Question.Repeat2Date, db.Date) == today) |
-            # Third repeat is due today
-            (Question.RepeatCount == 2 and Question.Repeat3Date is not None and db.func.cast(Question.Repeat3Date, db.Date) == today)
+        Question.IsHidden == False
+    ).filter(
+        db.or_(
+            db.and_(Question.RepeatCount == 0, db.func.cast(Question.Repeat1Date, db.Date) == today),
+            db.and_(Question.RepeatCount == 1, db.func.cast(Question.Repeat2Date, db.Date) == today),
+            db.and_(Question.RepeatCount == 2, db.func.cast(Question.Repeat3Date, db.Date) == today)
         )
-    ).order_by(Question.Repeat1Date).all()
-
+    ).all()
+    
+    print(f"DEBUG - Bugünkü soru sayısı: {len(questions)}")
+    
+    # Her sorunun tarihlerini debug amaçlı yazdır
+    for q in questions:
+        print(f"DEBUG - Soru ID: {q.QuestionId}, RepeatCount: {q.RepeatCount}")
+        print(f"DEBUG - Repeat1Date: {q.Repeat1Date}, Repeat2Date: {q.Repeat2Date}, Repeat3Date: {q.Repeat3Date}")
+    
     categories = Category.query.all()
     return render_template('today_questions.html', questions=questions, categories=categories, section='takipsistemi', show_sidebar=True)
 
 @app.route('/past_questions')
 @login_required
 def past_questions():
-    today = datetime.now().date()
+    # Şu anki tarihi ve saati al
+    now = datetime.now()
+    today = now.date()
 
     # Tekrar tarihi bugünden önce olan, tamamlanmamış ve 3 tekrarı tamamlanmamış soruları filtrele
-    # Mevcut RepeatCount'a göre ilgili RepeatDate'in bugünden önce olması gerekir
     questions = Question.query.filter(
         Question.UserId == current_user.UserId,
         Question.IsCompleted == False,
-        Question.RepeatCount < 3,
+        Question.RepeatCount < 3
+    ).filter(
+        # RepeatCount'a göre ilgili tarihin bugünden önce olması gerekiyor (gelecek tarihler hariç)
         (
-            # RepeatCount 0 ise, Repeat1Date bugünden önce olmalı
-            (Question.RepeatCount == 0 and db.func.cast(Question.Repeat1Date, db.Date) < today)
-            |
-            # RepeatCount 1 ise, Repeat2Date bugünden önce olmalı
-            (Question.RepeatCount == 1 and db.func.cast(Question.Repeat2Date, db.Date) < today)
-            |
-            # RepeatCount 2 ise, Repeat3Date bugünden önce olmalı
-            (Question.RepeatCount == 2 and db.func.cast(Question.Repeat3Date, db.Date) < today)
+            # RepeatCount 0 ise ve Repeat1Date bugünden önce ise
+            (Question.RepeatCount == 0) & (db.func.cast(Question.Repeat1Date, db.Date) < today)
+        ) | (
+            # RepeatCount 1 ise ve Repeat2Date bugünden önce ise
+            (Question.RepeatCount == 1) & (db.func.cast(Question.Repeat2Date, db.Date) < today)
+        ) | (
+            # RepeatCount 2 ise ve Repeat3Date bugünden önce ise
+            (Question.RepeatCount == 2) & (db.func.cast(Question.Repeat3Date, db.Date) < today)
         )
-    ).order_by(Question.Repeat1Date.desc()).all() # Sıralama tercihi kalabilir
+    ).order_by(Question.QuestionId.desc()).all()
     
     categories = Category.query.all()
     return render_template('past_questions.html', questions=questions, categories=categories, section='takipsistemi', show_sidebar=True)
@@ -702,7 +713,7 @@ def add_question():
             db.session.add(new_question)
             db.session.commit()
             flash('Soru başarıyla eklendi.', 'success')
-            return redirect(url_for('questions'))
+            return redirect(url_for('index'))
         except Exception as e:
             db.session.rollback()
             flash('Soru eklenirken bir hata oluştu: ' + str(e), 'error')
@@ -1178,7 +1189,8 @@ def report():
     overdue_tasks = Task.query.filter(
         Task.UserId == current_user.UserId,
         Task.Status == 'pending',
-        Task.DueDate < datetime.now()
+        Task.DueDate < datetime.now(),
+        Task.Title != 'spor'  # 'spor' görevini hariç tut
     ).all()
     # Toplam çalışma süresi (görev türü fark etmeksizin, o günün tüm TaskTime kayıtları)
     total_time = db.session.query(db.func.sum(TaskTime.Duration)).join(Task).filter(
@@ -1197,8 +1209,8 @@ def report():
         completed_tasks=completed_tasks,
         overdue_tasks=overdue_tasks,
         completion_rate=completion_rate,
-        section='hedefleyici', # Bunu takipsistemi yerine hedefleyici yaptım
-        show_sidebar=True # Show sidebar
+        section='hedefleyici',
+        show_sidebar=True
     )
 
 @app.route('/pomodoro_settings')
@@ -1333,29 +1345,37 @@ def save_timer():
     seconds = data.get('seconds', 0)
     if not seconds or seconds <= 0:
         return jsonify({'success': False, 'error': 'Geçersiz süre'}), 400
-    # TaskTime tablosuna günlük serbest çalışma olarak ekle
+    
+    # Çalışma süresini dakikaya çevir
+    minutes = int(seconds // 60)
+    
+    # Bugünün tarihi için zaman kaydı oluştur
     from datetime import datetime
     now = datetime.now()
-    # Serbest çalışma için özel bir Task kaydı bul veya oluştur
-    free_task = Task.query.filter_by(UserId=current_user.UserId, Title='Serbest Çalışma', Status='completed').filter(Task.CompletedAt >= now.replace(hour=0, minute=0, second=0)).first()
-    if not free_task:
-        free_task = Task(
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # TaskReport tablosuna kaydını ekle (görevlerle ilişkilendirmeden)
+    report = TaskReport.query.filter_by(
+        UserId=current_user.UserId,
+        ReportDate=today
+    ).first()
+    
+    # Eğer bugün için rapor yoksa yeni oluştur
+    if not report:
+        report = TaskReport(
             UserId=current_user.UserId,
-            Title='Serbest Çalışma',
-            Description='Sayaç ile kaydedilen serbest çalışma',
-            Status='completed',
-            CompletedAt=now
+            ReportDate=today,
+            CompletedTasks=0,
+            OverdueTasks=0,
+            TotalTimeSpent=minutes,
+            ReportContent='Pomodoro ile kayıtlı çalışma: {} dakika'.format(minutes)
         )
-        db.session.add(free_task)
-        db.session.commit()
-    # TaskTime kaydı ekle
-    time_entry = TaskTime(
-        TaskId=free_task.TaskId,
-        StartTime=now,
-        EndTime=now,
-        Duration=int(seconds // 60)
-    )
-    db.session.add(time_entry)
+        db.session.add(report)
+    else:
+        # Varolan rapora süreyi ekle
+        report.TotalTimeSpent += minutes
+        report.ReportContent = 'Pomodoro ile kayıtlı çalışma: {} dakika'.format(report.TotalTimeSpent)
+    
     db.session.commit()
     return jsonify({'success': True})
 
@@ -1772,64 +1792,171 @@ if __name__ == '__main__':
 @app.context_processor
 def inject_notifications():
     try:
+        # Eğer kullanıcı giriş yapmamışsa boş bildirim dön
         if not current_user.is_authenticated:
-            return dict(notifications=[], notification_count=0)
+            return dict(notifications=[], notification_count=0, today_questions=[], past_questions=[], 
+                        today_count=0, past_count=0)
+        
+        # Bugünün tarihini al
         today = datetime.now().date()
-        # Bugünkü sorular
+        now = datetime.now()
+        
+        print(f"DEBUG: Bildirimler yükleniyor... Bugün: {today}")
+        
+        # 1. Bugünkü sorular (birinci öncelik) - QUERY'i BASİTLEŞTİR
         today_questions = Question.query.filter(
             Question.UserId == current_user.UserId,
             Question.IsCompleted == False,
-            Question.IsHidden == False,
-            (
-                (Question.RepeatCount == 0 and Question.Repeat1Date is not None and db.func.cast(Question.Repeat1Date, db.Date) == today)
-                |
-                (Question.RepeatCount == 1 and Question.Repeat2Date is not None and db.func.cast(Question.Repeat2Date, db.Date) == today)
-                |
-                (Question.RepeatCount == 2 and Question.Repeat3Date is not None and db.func.cast(Question.Repeat3Date, db.Date) == today)
+            Question.IsHidden == False
+        ).filter(
+            db.or_(
+                db.and_(Question.RepeatCount == 0, db.func.cast(Question.Repeat1Date, db.Date) == today),
+                db.and_(Question.RepeatCount == 1, db.func.cast(Question.Repeat2Date, db.Date) == today),
+                db.and_(Question.RepeatCount == 2, db.func.cast(Question.Repeat3Date, db.Date) == today)
             )
         ).all()
+        
         today_count = len(today_questions)
-        # Geçmiş tekrarlar
+        print(f"DEBUG: Bugünkü soru sayısı: {today_count}")
+        
+        # 2. Geçmiş sorular (ikinci öncelik) - QUERY'i BASİTLEŞTİR
         past_questions = Question.query.filter(
             Question.UserId == current_user.UserId,
             Question.IsCompleted == False,
-            Question.IsHidden == False,
-            (
-                (Question.RepeatCount == 0 and Question.Repeat1Date is not None and db.func.cast(Question.Repeat1Date, db.Date) < today)
-                |
-                (Question.RepeatCount == 1 and Question.Repeat2Date is not None and db.func.cast(Question.Repeat2Date, db.Date) < today)
-                |
-                (Question.RepeatCount == 2 and Question.Repeat3Date is not None and db.func.cast(Question.Repeat3Date, db.Date) < today)
+            Question.IsHidden == False
+        ).filter(
+            db.or_(
+                db.and_(Question.RepeatCount == 0, db.func.cast(Question.Repeat1Date, db.Date) < today),
+                db.and_(Question.RepeatCount == 1, db.func.cast(Question.Repeat2Date, db.Date) < today),
+                db.and_(Question.RepeatCount == 2, db.func.cast(Question.Repeat3Date, db.Date) < today)
             )
         ).all()
+        
         past_count = len(past_questions)
-        # Motive mesajları
+        print(f"DEBUG: Geçmiş soru sayısı: {past_count}")
+        
+        # 3. Geciken görevler (üçüncü öncelik)
+        overdue_tasks = Task.query.filter(
+            Task.UserId == current_user.UserId,
+            Task.Status == 'pending',  # Tamamlanmamış görevler
+            Task.DueDate < now,  # Vadesi geçmiş
+            Task.Title != 'spor'  # 'spor' başlıklı görevleri hariç tut
+        ).all()
+        overdue_tasks_count = len(overdue_tasks)
+        
+        # 4. Bugünkü görevler (dördüncü öncelik)
+        today_tasks = Task.query.filter(
+            Task.UserId == current_user.UserId,
+            Task.Status == 'pending',  # Tamamlanmamış görevler
+            db.func.cast(Task.DueDate, db.Date) == today  # Bugünkü görevler
+        ).all()
+        today_tasks_count = len(today_tasks)
+        
+        # Motivasyon mesajları
         motivation_messages = [
-            f"DEBUG: Bugün: {today_count}, Geçmiş: {past_count}",
             "Her gün bir adım daha ileri! Bugünün hedeflerini tamamlamak için harekete geç.",
             "Başarı, küçük adımların toplamıdır! Bugün de bir adım at.",
             "Zorluklarla karşılaştığında vazgeçme, mola ver ve devam et!",
             "Küçük adımlar büyük başarılar getirir! Bugün bir soruyu tamamla.",
             "Bugün dünden daha iyi ol! Hedefine yaklaşıyorsun.",
             "Başarı yolunda ilerliyorsun! Her tekrar seni güçlendirir.",
-            "Kendine inan, başarabilirsin!"
+            "Kendine inan, başarabilirsin! Zorlukların üstesinden geleceksin.",
+            "Disiplin, özgürlüğün anahtarıdır. Çalışmalarına düzenli devam et!",
+            "Her öğrenilen bilgi, yeni bir dünya demektir. Kendini geliştirmeye devam et!",
+            "Küçük zaferler büyük başarıların temelidir. Her günü bir fırsat olarak gör!"
         ]
+        
+        # Rastgele bir motivasyon mesajı seç
         import random
         motivation = random.choice(motivation_messages)
+        
+        # Bildirimleri ekle
         notifications = []
+        
+        # BUGÜNKÜ SORULAR BİLDİRİMİ (birinci öncelik)
         if today_count > 0:
+            emoji = random.choice(["✨", "🔆", "🚀", "💪", "🌟"])
             notifications.append({
                 'type': 'Bugün',
-                'msg': f"Bugün çözmen gereken {today_count} soru var. Harikasın!"
+                'msg': f"Bugün çözmen gereken {today_count} soru var. {emoji} Şimdi çalışmaya başla!",
+                'url': url_for('today_questions'),
+                'icon': '<i class="fas fa-calendar-day text-primary"></i>',
+                'priority': 1
             })
+            print(f"DEBUG: Bugünkü soru bildirimi eklendi: {today_count} soru")
+        
+        # GEÇMİŞ SORULAR BİLDİRİMİ (ikinci öncelik)
         if past_count > 0:
+            emoji = random.choice(["⏰", "⚡", "🔥", "📝", "📚"])
             notifications.append({
                 'type': 'Gecikmiş',
-                'msg': f"{past_count} tekrarın gecikmiş, şimdi tam zamanı!"
+                'msg': f"{past_count} tekrarın gecikmiş. {emoji} Hemen tamamla ve ilerle!",
+                'url': url_for('past_questions'),
+                'icon': '<i class="fas fa-history text-warning"></i>',
+                'priority': 2
             })
-        notifications.append({'type': 'Motive', 'msg': motivation})
-        notification_count = today_count + past_count
-        return dict(notifications=notifications, notification_count=notification_count)
+            print(f"DEBUG: Geçmiş soru bildirimi eklendi: {past_count} soru")
+        
+        # GECİKEN GÖREVLER BİLDİRİMİ (üçüncü öncelik)
+        if overdue_tasks_count > 0:
+            emoji = random.choice(["⚠️", "📋", "🎯", "⏳", "🔔"])
+            notifications.append({
+                'type': 'Görev',
+                'msg': f"{overdue_tasks_count} geciken görevin var. {emoji} Şimdi tamamla!",
+                'url': url_for('report'),
+                'icon': '<i class="fas fa-tasks text-danger"></i>',
+                'priority': 3
+            })
+        
+        # BUGÜNKÜ GÖREVLER BİLDİRİMİ (dördüncü öncelik)
+        if today_tasks_count > 0:
+            emoji = random.choice(["📌", "✅", "📆", "🎯", "📝"])
+            notifications.append({
+                'type': 'Görev',
+                'msg': f"Bugün {today_tasks_count} görevin var. {emoji} Planını yap!",
+                'url': url_for('gorevlerim'),
+                'icon': '<i class="fas fa-clipboard-list text-success"></i>',
+                'priority': 4
+            })
+        
+        # MOTİVASYON MESAJI (her zaman göster, beşinci öncelik)
+        notifications.append({
+            'type': 'Motive',
+            'msg': motivation,
+            'url': '#',
+            'icon': '<i class="fas fa-lightbulb text-warning"></i>',
+            'priority': 5
+        })
+        
+        # POMODORO HATIRLATMASI (%50 ihtimalle göster, altıncı öncelik)
+        if random.random() < 0.5:
+            notifications.append({
+                'type': 'Pomodoro',
+                'msg': "Pomodoro tekniğiyle çalışmayı denedin mi? Verimliliğini artırabilir!",
+                'url': url_for('timer'),
+                'icon': '<i class="fas fa-clock text-info"></i>',
+                'priority': 6
+            })
+        
+        # Bildirimleri öncelik sırasına göre sırala
+        notifications.sort(key=lambda x: x.get('priority', 99))
+        
+        # Toplam bildirim sayısı (Bugün, Geçmiş, Geciken Görevler, Bugünkü Görevler)
+        notification_count = today_count + past_count + overdue_tasks_count + today_tasks_count
+        
+        # Debug için bildirimlerin içeriğini yazdır
+        print(f"DEBUG: Toplam bildirim sayısı: {notification_count}")
+        for i, n in enumerate(notifications):
+            print(f"DEBUG: {i+1}. {n['type']}: {n['msg']}")
+        
+        # Şablonlara gönderilecek tüm değişkenler
+        return dict(notifications=notifications, notification_count=notification_count,
+                   today_questions=today_questions, past_questions=past_questions,
+                   today_count=today_count, past_count=past_count,
+                   overdue_tasks=overdue_tasks, today_tasks=today_tasks)
     except Exception as e:
+        import traceback
         print('Context processor hatası:', e)
-        return dict(notifications=[], notification_count=0)
+        traceback.print_exc()
+        return dict(notifications=[], notification_count=0, today_questions=[], past_questions=[],
+                    today_count=0, past_count=0)

@@ -5,20 +5,42 @@
 {% block page_content %}
 <div class="container mt-4">
     <h2 class="mb-4">Geçmiş Sorular</h2>
+    <div class="alert alert-warning mb-4">
+        <i class="fas fa-exclamation-circle"></i> <strong>Dikkat:</strong> Bu sayfada tekrar tarihi geçmiş sorular listelenmektedir. Bugünkü sorular hariç, sadece dünden daha önceki günlere ait tekrarlanmamış sorular burada görünür. Lütfen bu soruları en kısa sürede tekrar edin.
+    </div>
+
     <div class="row">
         {% for question in questions %}
-        <div class="col-12 mb-3 d-flex align-items-center border rounded p-2 bg-white">
-            {% if question.ImagePath or question.PhotoPath %}
-                <img src="{{ url_for('static', filename=question.ImagePath or question.PhotoPath) }}" alt="Soru Görseli" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; margin-right: 16px;">
-            {% endif %}
-            <div class="flex-grow-1">
-                <div class="fw-bold">{{ question.Content[:100] }}{% if question.Content|length > 100 %}...{% endif %}</div>
+        <div class="col-12 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    {% if question.ImagePath or question.PhotoPath %}
+                        <img src="{{ url_for('static', filename=question.ImagePath or question.PhotoPath) }}" alt="Soru Görseli" style="height: 70px; width: 70px; object-fit: cover; border-radius: 8px; margin-right: 16px;">
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">{{ question.Content[:150] }}{% if question.Content|length > 150 %}...{% endif %}</div>
+                        <div class="mt-2 text-danger">
+                            <i class="fas fa-calendar-times"></i> <strong>Çözülmesi gereken tarih:</strong> 
+                            {% if question.RepeatCount == 0 %}
+                                {{ question.Repeat1Date.strftime('%d.%m.%Y') }}
+                            {% elif question.RepeatCount == 1 %}
+                                {{ question.Repeat2Date.strftime('%d.%m.%Y') }}
+                            {% elif question.RepeatCount == 2 %}
+                                {{ question.Repeat3Date.strftime('%d.%m.%Y') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{{ url_for('view_question', question_id=question.QuestionId) }}" class="btn btn-primary ms-2">Çöz</a>
+                </div>
             </div>
-            <a href="{{ url_for('view_question', question_id=question.QuestionId) }}" class="btn btn-primary ms-3"><i class="fas fa-eye"></i> Görüntüle</a>
         </div>
         {% endfor %}
         {% if questions|length == 0 %}
-        <div class="alert alert-info mt-3">Geçmiş soru bulunmuyor.</div>
+        <div class="col-12">
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> Tebrikler! Şu anda çözmeniz gereken geçmiş soru bulunmuyor.
+            </div>
+        </div>
         {% endif %}
     </div>
 </div>

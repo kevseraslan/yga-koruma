@@ -38,14 +38,15 @@
                                     </p>
                                     
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#updateProgressModal{{ book.BookId }}">
+                                        <button type="button" class="btn btn-sm btn-outline-primary update-progress-btn" 
+                                                data-book-id="{{ book.BookId }}"
+                                                data-current-page="{{ book.CurrentPage }}"
+                                                data-total-pages="{{ book.TotalPages }}">
                                             İlerleme Güncelle
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-success" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#addQuoteModal{{ book.BookId }}">
+                                        <button type="button" class="btn btn-sm btn-outline-success add-quote-btn" 
+                                                data-book-id="{{ book.BookId }}"
+                                                data-total-pages="{{ book.TotalPages }}">
                                             Alıntı Ekle
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger delete-book" 
@@ -82,66 +83,67 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- İlerleme Güncelleme Modal -->
-                        <div class="modal fade" id="updateProgressModal{{ book.BookId }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">İlerleme Güncelle</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <form action="{{ url_for('update_book_progress', book_id=book.BookId) }}" method="POST">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="current_page" class="form-label">Mevcut Sayfa</label>
-                                                <input type="number" class="form-control" id="current_page" name="current_page" 
-                                                       min="0" max="{{ book.TotalPages }}" value="{{ book.CurrentPage }}" required>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                                            <button type="submit" class="btn btn-primary">Güncelle</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Alıntı Ekleme Modal -->
-                        <div class="modal fade" id="addQuoteModal{{ book.BookId }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Alıntı Ekle</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <form action="{{ url_for('add_quote', book_id=book.BookId) }}" method="POST">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="page_number" class="form-label">Sayfa Numarası</label>
-                                                <input type="number" class="form-control" id="page_number" name="page_number" 
-                                                       min="1" max="{{ book.TotalPages }}" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="content" class="form-label">Alıntı</label>
-                                                <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                                            <button type="submit" class="btn btn-primary">Ekle</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tek bir İlerleme Güncelleme Modal -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">İlerleme Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="updateProgressForm" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="current_page" class="form-label">Mevcut Sayfa</label>
+                        <input type="number" class="form-control" id="current_page" name="current_page" min="0" required>
+                    </div>
+                    <input type="hidden" id="total_pages" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tek bir Alıntı Ekleme Modal -->
+<div class="modal fade" id="addQuoteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Alıntı Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addQuoteForm" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="page_number" class="form-label">Sayfa Numarası</label>
+                        <input type="number" class="form-control" id="page_number" name="page_number" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Alıntı</label>
+                        <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                    </div>
+                    <input type="hidden" id="quote_book_id" value="">
+                    <input type="hidden" id="quote_total_pages" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Ekle</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -212,6 +214,46 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // CSRF token'ı al
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    // İlerleme güncelleme modal'ını açma
+    document.querySelectorAll('.update-progress-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const bookId = this.dataset.bookId;
+            const currentPage = this.dataset.currentPage;
+            const totalPages = this.dataset.totalPages;
+            
+            // Form değerlerini ayarla
+            const form = document.getElementById('updateProgressForm');
+            form.action = `/update_book_progress/${bookId}`;
+            document.getElementById('current_page').value = currentPage;
+            document.getElementById('current_page').max = totalPages;
+            document.getElementById('total_pages').value = totalPages;
+            
+            // Modal'ı aç
+            new bootstrap.Modal(document.getElementById('updateProgressModal')).show();
+        });
+    });
+    
+    // Alıntı ekleme modal'ını açma
+    document.querySelectorAll('.add-quote-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const bookId = this.dataset.bookId;
+            const totalPages = this.dataset.totalPages;
+            
+            // Form değerlerini ayarla
+            const form = document.getElementById('addQuoteForm');
+            form.action = `/add_quote/${bookId}`;
+            document.getElementById('page_number').max = totalPages;
+            document.getElementById('quote_book_id').value = bookId;
+            document.getElementById('quote_total_pages').value = totalPages;
+            
+            // Modal'ı aç
+            new bootstrap.Modal(document.getElementById('addQuoteModal')).show();
+        });
+    });
+    
     // Kitap silme işlemi
     document.querySelectorAll('.delete-book').forEach(button => {
         button.addEventListener('click', function() {
@@ -220,7 +262,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch(`/delete-book/${bookId}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
                     }
                 })
                 .then(response => response.json())
@@ -243,7 +286,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch(`/delete-quote/${quoteId}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
                     }
                 })
                 .then(response => response.json())
@@ -270,33 +314,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editQuoteForm').action = `/edit-quote/${quoteId}`;
             
             new bootstrap.Modal(document.getElementById('editQuoteModal')).show();
-        });
-    });
-
-    // Alıntı ekleme işlemini AJAX ile yap
-    document.querySelectorAll('form[action^="/add_quote/"]').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const modal = form.closest('.modal');
-            const formData = new FormData(form);
-            fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Modalı kapat
-                    const bsModal = bootstrap.Modal.getInstance(modal);
-                    bsModal.hide();
-                    location.reload();
-                } else {
-                    alert(data.message || 'Alıntı eklenirken bir hata oluştu.');
-                }
-            })
-            .catch(() => {
-                alert('Sunucuya bağlanırken bir hata oluştu.');
-            });
         });
     });
 });

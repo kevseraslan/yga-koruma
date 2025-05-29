@@ -499,6 +499,40 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
+        /* Sistem Geçiş Butonu Stilleri */
+        .system-switch-btn {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 15px;
+        }
+        
+        .system-switch-btn .btn {
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+            border-radius: 20px;
+            border-width: 2px;
+            text-transform: uppercase;
+        }
+        
+        .system-switch-btn .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .system-switch-btn .btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        .system-switch-btn .btn:hover i {
+            transform: rotate(180deg);
+        }
+        
         /* Sidebar Items */
         .sidebar-item {
             color: rgba(255,255,255,0.8);
@@ -541,7 +575,6 @@
         #page-content-wrapper {
             width: 100%;
             min-height: 100vh;
-            padding-left: var(--sidebar-width);
             transition: all var(--transition-speed) ease;
         }
         
@@ -558,10 +591,12 @@
         @media (max-width: 991.98px) {
             #sidebar-wrapper {
                 margin-left: calc(-1 * var(--sidebar-width));
+                transition: margin-left var(--transition-speed) ease;
             }
             
             #page-content-wrapper {
                 padding-left: 0;
+                transition: padding-left var(--transition-speed) ease;
             }
             
             #wrapper.toggled #sidebar-wrapper {
@@ -578,6 +613,21 @@
             
             .sidebar-item:hover, .sidebar-item.active {
                 padding-left: 1.5rem;
+            }
+        }
+        
+        /* Desktop Layout */
+        @media (min-width: 992px) {
+            #page-content-wrapper {
+                padding-left: var(--sidebar-width);
+            }
+            
+            #wrapper:not(.toggled) #sidebar-wrapper {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+            
+            #wrapper:not(.toggled) #page-content-wrapper {
+                padding-left: 0;
             }
         }
         
@@ -735,6 +785,66 @@
         .dropdown-item:hover {
             background-color: rgba(78, 115, 223, 0.1);
             color: var(--primary-color);
+        }
+        
+        /* Notification Styles */
+        .notification-item {
+            padding: 0.7rem 1rem;
+            transition: background-color 0.2s ease;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        
+        .notification-icon {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-right: 10px;
+            background-color: rgba(78, 115, 223, 0.1);
+            color: var(--primary-color);
+        }
+        
+        /* Bildirim arkaplan renkleri */
+        .bg-primary-light {
+            background-color: rgba(78, 115, 223, 0.15);
+            color: #4e73df;
+        }
+        
+        .bg-warning-light {
+            background-color: rgba(246, 194, 62, 0.15);
+            color: #f6c23e;
+        }
+        
+        .bg-danger-light {
+            background-color: rgba(231, 74, 59, 0.15);
+            color: #e74a3b;
+        }
+        
+        .bg-success-light {
+            background-color: rgba(28, 200, 138, 0.15);
+            color: #1cc88a;
+        }
+        
+        .bg-info-light {
+            background-color: rgba(54, 185, 204, 0.15);
+            color: #36b9cc;
+        }
+        
+        /* Notification badge pulse animasyonu */
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        
+        .badge-pulse {
+            animation: pulse 2s infinite;
         }
     </style>
     
@@ -913,12 +1023,34 @@
         
         // Sayfa yüklendikten sonra çalışacak kodlar
         document.addEventListener('DOMContentLoaded', function() {
+            // Başlangıçta sidebar durumunu ayarla (window.innerWidth kontrolü)
+            function checkWidth() {
+                var wrapper = document.getElementById('wrapper');
+                if (wrapper) {
+                    if (window.innerWidth < 992) { // Mobil görünüm
+                        wrapper.classList.remove('toggled'); // Sidebar'ı gizle
+                    } else { // Masaüstü görünüm
+                        wrapper.classList.add('toggled'); // Sidebar'ı göster
+                    }
+                }
+            }
+            
+            // Sayfa yüklendiğinde ve boyutu değiştiğinde kontrol et
+            window.addEventListener('resize', checkWidth);
+            checkWidth(); // Sayfa yüklendiğinde çalıştır
+            
             // Sidebar toggle butonu
             var sidebarToggle = document.getElementById('sidebarToggle');
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function(e) {
                     e.preventDefault();
-                    document.getElementById('wrapper').classList.toggle('toggled');
+                    e.stopPropagation(); // Event'in diğer elementlere yayılmasını engelle
+                    
+                    // Wrapper'a toggled sınıfını ekleyin/çıkarın
+                    var wrapper = document.getElementById('wrapper');
+                    if (wrapper) {
+                        wrapper.classList.toggle('toggled');
+                    }
                 });
             }
             
@@ -941,19 +1073,6 @@
                 });
             }
             
-            // Mobil cihazlarda sidebar'ı otomatik kapat
-            function checkWidth() {
-                if (window.innerWidth < 992) {
-                    document.getElementById('wrapper').classList.remove('toggled');
-                } else {
-                    document.getElementById('wrapper').classList.add('toggled');
-                }
-            }
-            
-            // Sayfa yüklendiğinde ve boyutu değiştiğinde kontrol et
-            window.addEventListener('resize', checkWidth);
-            checkWidth();
-            
             // Mobil cihazlarda sidebar dışına tıklandığında sidebar'ı kapat
             document.addEventListener('click', function(event) {
                 var sidebar = document.getElementById('sidebar-wrapper');
@@ -962,7 +1081,8 @@
                 if (window.innerWidth < 992 && 
                     document.getElementById('wrapper').classList.contains('toggled') && 
                     !sidebar.contains(event.target) && 
-                    event.target !== sidebarToggle) {
+                    event.target !== sidebarToggle && 
+                    !sidebarToggle.contains(event.target)) {
                     document.getElementById('wrapper').classList.remove('toggled');
                 }
             });
@@ -983,405 +1103,270 @@
                     }
                 });
             });
+            
+            // CSRF token setup for AJAX requests
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         });
     })();
     </script>
-</head>
-<body>
-    {% block navbar %}
-        {% if current_user.is_authenticated %}
-        <div class="d-flex" id="wrapper">
-            <!-- Sidebar -->
-            <div class="sidebar-wrapper" id="sidebar-wrapper">
-                {% if show_sidebar %}
-                <div class="sidebar-heading">
-                    <a href="{{ url_for('index') }}" class="text-white text-decoration-none">
-                        <i class="fas fa-book-reader"></i> <span>ReviseMe</span>
-                    </a>
-                </div>
-                <div class="list-group list-group-flush mt-2">
-                    {# Takip Sistemi Menu Items - Show only when section is 'takipsistemi' #}
-                    {% if section == 'takipsistemi' %}
-                    <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'index' else '' }}">
-                        <i class="fas fa-home"></i> <span>Ana Sayfa</span>
-                    </a>
-                    <a href="{{ url_for('add_question') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'add_question' else '' }}">
-                        <i class="fas fa-plus-circle"></i> <span>Yeni Soru Ekle</span>
-                    </a>
-                    <a href="{{ url_for('favorites') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'favorites' else '' }}">
-                        <i class="fas fa-star"></i> <span>Favorilerim</span>
-                    </a>
-                    <a href="{{ url_for('today_questions') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'today_questions' else '' }}">
-                        <i class="fas fa-calendar-day"></i> <span>Bugünün Soruları</span>
-                    </a>
-                    <a href="{{ url_for('past_questions') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'past_questions' else '' }}">
-                        <i class="fas fa-history"></i> <span>Geçmiş Sorular</span>
-                    </a>
-                    <a href="{{ url_for('timer') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'timer' else '' }}">
-                        <i class="fas fa-clock"></i> <span>Sayaç</span>
-                    </a>
-                    {% endif %}
 
-                    {# Hedefleyici Menu Items - Show only when section is 'hedefleyici' #}
-                    {% if section == 'hedefleyici' %}
-                    <div class="sidebar-heading">Hedefleyici</div>
-                    <a href="{{ url_for('kitaplarim') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'kitaplarim' else '' }}">
-                        <i class="fas fa-book"></i> <span>Kitaplarım</span>
-                    </a>
-                    <a href="{{ url_for('gorevlerim') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'gorevlerim' else '' }}">
-                        <i class="fas fa-check-double"></i> <span>Görevlerim</span>
-                    </a>
-                    <a href="{{ url_for('listening') }}" class="list-group-item list-group-item-action sidebar-item {{ 'active' if request.endpoint == 'listening' else '' }}">
-                        <i class="fas fa-headphones"></i> <span>Listening</span>
-                    </a>
-                    {% endif %}
-                </div>
-                
-                
-                <!-- User Info at Bottom of Sidebar -->
-                <div class="mt-auto p-3 border-top border-light border-opacity-25 d-flex align-items-center">
-                    <a href="{{ url_for('profile') }}" class="text-white text-decoration-none d-flex align-items-center">
-                        <div class="avatar-circle bg-white text-primary d-flex align-items-center justify-content-center me-2">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <span class="ms-2 d-none d-md-inline">{{ current_user.UserName }}</span>
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-light ms-auto" title="Çıkış Yap">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Page Content -->
-            <div id="page-content-wrapper" class="{% if not show_sidebar %}no-sidebar-padding{% endif %}">
-                <!-- Top Navigation -->
-                <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
-                    <div class="container-fluid">
-                        <!-- Mobile Toggle Button -->
-                        <button class="btn btn-link text-white border-0 p-0 me-3" id="sidebarToggle">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                        
-                        <!-- Brand - Only visible on mobile -->
-                        <a class="navbar-brand d-lg-none" href="{{ url_for('index') }}">
-                            <i class="fas fa-book-reader"></i> ReviseMe
-                        </a>
-                        
-                        <!-- Collapse Button for Mobile -->
-                        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        
-                        <!-- Navbar Content -->
-                        <div class="collapse navbar-collapse" id="navbarContent">
-                            <!-- Search Form -->
-                            <form class="d-flex ms-auto me-auto my-2 my-lg-0 position-relative" style="max-width: 400px;">
-                                <input class="form-control bg-light border-0 small" type="search" placeholder="Ara..." aria-label="Search">
-                                <button class="btn position-absolute end-0 top-0 bottom-0" type="submit">
-                                    <i class="fas fa-search fa-sm text-muted"></i>
-                                </button>
-                            </form>
-                            
-                            <!-- Right Side Nav Items -->
-                            <ul class="navbar-nav ms-auto">
-                                <!-- Notifications Dropdown - Visible on larger screens -->
-                                <li class="nav-item dropdown d-none d-lg-inline-block">
-                                    <a class="nav-link dropdown-toggle position-relative" href="#" id="navbarDropdownNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-bell"></i>
-                                        {% if notification_count %}
-                                        <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">{{ notification_count }}</span>
-                                        {% endif %}
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="navbarDropdownNotifications" style="min-width:340px;max-width:400px;">
-                                        <li><h6 class="dropdown-header">Bildirimler</h6></li>
-                                        {% for n in notifications %}
-                                          <li>
-                                            <div class="dropdown-item d-flex align-items-start">
-                                              <div class="icon-circle bg-primary text-white me-3">
-                                                {% if n.type == 'Bugün' %}<i class="fas fa-calendar-day"></i>{% elif n.type == 'Gecikmiş' %}<i class="fas fa-history"></i>{% elif n.type == 'Motive' %}<i class="fas fa-bolt"></i>{% else %}<i class="fas fa-bell"></i>{% endif %}
-                                              </div>
-                                              <div class="flex-grow-1">
-                                                <div class="fw-bold">
-                                                  {% if n.type == 'Bugün' %}Bugünkü Sorular{% elif n.type == 'Gecikmiş' %}Geçmiş Tekrarlar{% elif n.type == 'Motive' %}Motivasyon{% else %}Bildirim{% endif %}
-                                                </div>
-                                                <div class="small text-muted">{{ n.msg }}</div>
-                                              </div>
-                                            </div>
-                                          </li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                                
-                                <!-- Theme Toggle -->
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#" id="themeToggle">
-                                        <i class="fas fa-moon"></i>
-                                    </a>
-                                </li>
-                                
-                                <!-- User Information Dropdown - Visible on larger screens -->
-                                <li class="nav-item dropdown d-none d-lg-inline-block">
-                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="d-none d-lg-inline text-gray-600 small me-2">{{ current_user.UserName }}</span>
-                                        <div class="avatar-circle bg-white text-primary d-inline-flex align-items-center justify-content-center">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
-                                        <a class="dropdown-item" href="{{ url_for('profile') }}">
-                                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
-                                            Profil
-                                        </a>
-                                        <a class="dropdown-item" href="{{ url_for('settings') }}">
-                                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
-                                            Ayarlar
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="{{ url_for('logout') }}">
-                                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
-                                            Çıkış Yap
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-                
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        <div class="container-fluid mt-3">
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
-                
-                <!-- Main Content -->
-                <div class="content-container">
-                    {% block page_content %}{% endblock %}
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endblock %}
-
-    <div class="container-fluid">
-        {% block content %}{% endblock %}
-    </div>
-    
-    {% block content_simple %}{% endblock %}
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {% block scripts %}{% endblock %}
-    
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Simplified sidebar toggle functionality
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.body.classList.toggle('sidebar-toggled');
-                document.querySelector('.sidebar-wrapper').classList.toggle('toggled');
-                document.querySelector('#page-content-wrapper').classList.toggle('toggled');
-            });
+    <!-- Bildirim Badge Animasyonu -->
+    <style>
+        /* Bildirim Badge Animasyonu */
+        @keyframes notificationPulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
         }
         
-        // CSRF token setup for AJAX requests
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    });
-    </script>
+        .badge-pulse {
+            animation: notificationPulse 1.5s infinite;
+        }
+        
+        /* Bildirim Badge Stilini İyileştir */
+        .badge-notification {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(40%, -40%);
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.35em 0.6em;
+            border: 2px solid white;
+            z-index: 5;
+        }
+        
+        /* Bildirim Dropdown İçeriği */
+        .notification-item {
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            padding: 0.8rem 1rem;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(78, 115, 223, 0.08);
+            border-left-color: var(--primary-color);
+        }
+        
+        /* Bugün bildirimleri için stil */
+        .notification-item.today {
+            border-left: 3px solid var(--primary-color);
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        
+        /* Gecikmiş bildirimleri için stil */
+        .notification-item.late {
+            border-left: 3px solid var(--danger-color);
+            background-color: rgba(231, 74, 59, 0.05);
+        }
+        
+        /* Mobil için bildirim butonu iyileştirmesi */
+        @media (max-width: 767.98px) {
+            #navbarDropdownNotifications {
+                padding: 0.6rem 0.8rem;
+                font-size: 1.1rem;
+            }
+            
+            #navbarDropdownNotifications .badge {
+                font-size: 0.65rem !important;
+                transform: translate(30%, -50%) !important;
+            }
+            
+            .dropdown-menu[aria-labelledby="navbarDropdownNotifications"] {
+                min-width: 280px !important;
+                max-width: 95vw !important;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+
+    {% if request.endpoint != 'timer' %}
+    <!-- Bildirim Script'i - Daha Canlı Gösterim -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var dropdown = document.getElementById('notificationsDropdown');
-        var dropdownMenu = dropdown ? dropdown.nextElementSibling : null;
-        if(dropdown && dropdownMenu) {
-            dropdown.addEventListener('show.bs.dropdown', function() {
-                dropdownMenu.innerHTML = '<div class="p-3 text-center"><span class="spinner-border spinner-border-sm"></span> Yükleniyor...</div>';
-                fetch('/get_notifications')
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            let html = '<div style="min-width:340px;max-width:400px;">';
-                            let hasAny = false;
-                            // Soru Bildirimleri
-                            if(data.notifications && data.notifications.length > 0) {
-                                html += '<div class="mb-2"><div class="fw-bold text-primary mb-1"><i class="fas fa-book-open me-1"></i> Soru Bildirimleri</div>';
-                                data.notifications.forEach(function(n) {
-                                    hasAny = true;
-                                    html += `<div class='card mb-2 border-primary'>
-                                        <div class='card-body p-2 d-flex align-items-center'>
-                                            <span style='font-size:1.5em;' class='me-2'>${n.icon}</span>
-                                            <div class='flex-grow-1'>${n.message}<div class='small text-muted mt-1'>${n.time||''}</div></div>
-                                        </div>
-                                    </div>`;
-                                });
-                                html += '</div>';
-                            }
-                            // Görev Bildirimleri
-                            if(data.task_notifications && data.task_notifications.length > 0) {
-                                html += '<div class="mb-2"><div class="fw-bold text-warning mb-1"><i class="fas fa-tasks me-1"></i> Görev Bildirimleri</div>';
-                                data.task_notifications.forEach(function(n) {
-                                    hasAny = true;
-                                    html += `<div class='card mb-2 border-warning'>
-                                        <div class='card-body p-2 d-flex align-items-center'>
-                                            <span style='font-size:1.5em;' class='me-2'>${n.icon}</span>
-                                            <div class='flex-grow-1'>${n.message}<div class='small text-muted mt-1'>${n.time||''}</div></div>
-                                        </div>
-                                    </div>`;
-                                });
-                                html += '</div>';
-                            }
-                            // Motivasyon Bildirimleri
-                            if(data.planning_notifications && data.planning_notifications.length > 0) {
-                                html += '<div class="mb-2"><div class="fw-bold text-success mb-1"><i class="fas fa-lightbulb me-1"></i> Motivasyon</div>';
-                                data.planning_notifications.forEach(function(n) {
-                                    hasAny = true;
-                                    html += `<div class='card mb-2 border-success'>
-                                        <div class='card-body p-2 d-flex align-items-center'>
-                                            <span style='font-size:1.5em;' class='me-2'>${n.icon}</span>
-                                            <div class='flex-grow-1'>${n.message}<div class='small text-muted mt-1'>${n.time||''}</div></div>
-                                        </div>
-                                    </div>`;
-                                });
-                                html += '</div>';
-                            }
-                            if(!hasAny) html += '<div class="alert alert-info text-center mb-0">Şu anda gösterilecek bir bildirim yok.</div>';
-                            html += '</div>';
-                            dropdownMenu.innerHTML = html;
-                        } else {
-                            dropdownMenu.innerHTML = '<div class="alert alert-danger text-center mb-0">Bildirimler yüklenemedi.</div>';
-                        }
-                    })
-                    .catch(() => {
-                        dropdownMenu.innerHTML = '<div class="alert alert-danger text-center mb-0">Bildirimler yüklenemedi.</div>';
-                    });
-            });
+        console.log("🔔 Bildirimler etkinleştiriliyor...");
+        
+        // Bildirim simgesine canlı stil ekle
+        var bellIcon = document.querySelector('#navbarDropdownNotifications i.fa-bell');
+        if (bellIcon) {
+            bellIcon.classList.add('fa-shake');
+            setTimeout(() => {
+                bellIcon.classList.remove('fa-shake');
+            }, 5000);
+        } else {
+            console.log("⚠️ Bildirim zili ikonu bulunamadı");
         }
-
-        // Pomodoro Sayaç Scripti
-        let pomodoroInterval = null;
-        let pomodoroState = 'work'; // 'work', 'shortBreak', 'longBreak'
-        let pomodoroTimeLeft = 0;
-        let pomodoroCount = 0;
-
-        function getPomodoroSettings() {
-            const defaults = { workDuration: 25, shortBreakDuration: 5, longBreakDuration: 15, pomodorosUntilLongBreak: 4 };
-            try {
-                const settings = JSON.parse(localStorage.getItem('pomodoroSettings'));
-                return settings ? { ...defaults, ...settings } : defaults;
-            } catch { return defaults; }
+        
+        // Bildirim simgesine canlı renk ekle
+        var notificationBadge = document.querySelector('#navbarDropdownNotifications .badge');
+        if (notificationBadge) {
+            // Badge'e gelişmiş stil ekle
+            notificationBadge.classList.add('badge-notification');
+            notificationBadge.classList.add('badge-pulse');
+        } else {
+            console.log("⚠️ Bildirim badge bulunamadı");
         }
-
-        function updatePomodoroDisplay() {
-            const min = String(Math.floor(pomodoroTimeLeft / 60)).padStart(2, '0');
-            const sec = String(pomodoroTimeLeft % 60).padStart(2, '0');
-            document.getElementById('pomodoroTime').textContent = `${min}:${sec}`;
-        }
-
-        window.startPomodoro = function() {
-            const settings = getPomodoroSettings();
-            if (!pomodoroTimeLeft) {
-                if (pomodoroState === 'work') pomodoroTimeLeft = settings.workDuration * 60;
-                else if (pomodoroState === 'shortBreak') pomodoroTimeLeft = settings.shortBreakDuration * 60;
-                else pomodoroTimeLeft = settings.longBreakDuration * 60;
-            }
-            if (pomodoroInterval) clearInterval(pomodoroInterval);
-            pomodoroInterval = setInterval(() => {
-                if (pomodoroTimeLeft > 0) {
-                    pomodoroTimeLeft--;
-                    updatePomodoroDisplay();
+        
+        // DROPDOWN BASIT IMPLEMENTASYON - En sade haliyle
+        var notificationButton = document.getElementById('navbarDropdownNotifications');
+        var notificationMenu = document.querySelector('.dropdown-menu[aria-labelledby="navbarDropdownNotifications"]');
+        
+        if (notificationButton && notificationMenu) {
+            console.log("📢 Bildirim öğeleri bulundu, basit dropdown mekanizması ayarlanıyor...");
+            
+            // Dropdown öğesine tıklama olayı ekle - Basit ve direkt toggle
+            notificationButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Olay yayılımını durdur
+                
+                // Dropdown menünün görünürlüğünü değiştir
+                if (notificationMenu.classList.contains('show')) {
+                    notificationMenu.classList.remove('show');
+                    console.log("🔴 Dropdown menü kapatıldı");
                 } else {
-                    clearInterval(pomodoroInterval);
-                    pomodoroInterval = null;
-                    if (pomodoroState === 'work') {
-                        pomodoroCount++;
-                        if (pomodoroCount % settings.pomodorosUntilLongBreak === 0) {
-                            pomodoroState = 'longBreak';
+                    notificationMenu.classList.add('show');
+                    console.log("🟢 Dropdown menü açıldı");
+                }
+            });
+            
+            // Sayfa herhangi bir yerine tıklanınca dropdown'ı kapat
+            document.addEventListener('click', function(e) {
+                // Eğer tıklanan öğe bildirim butonu veya menüsü değilse kapat
+                if (!notificationButton.contains(e.target) && !notificationMenu.contains(e.target)) {
+                    notificationMenu.classList.remove('show');
+                }
+            });
                         } else {
-                            pomodoroState = 'shortBreak';
+            console.log("⚠️ Bildirim öğeleri bulunamadı: Buton veya menü eksik olabilir");
+        }
+        
+        // Bildirim öğelerine stil ekle - Sadece öğeler varsa çalışacak
+        var notificationItems = document.querySelectorAll('.notification-item');
+        if (notificationItems.length > 0) {
+            notificationItems.forEach(function(item) {
+                // Bildirim tipine göre özel stil ekle
+                var typeElem = item.querySelector('.fw-bold');
+                if (typeElem) {
+                    var typeClass = typeElem.textContent.trim();
+                    if (typeClass.includes('Bugünkü')) {
+                        item.classList.add('today');
+                    } else if (typeClass.includes('Geçmiş')) {
+                        item.classList.add('late');
+                    }
+                }
+            });
+            
+            // Bildirim yoksa badge'i gizle
+            if (document.querySelectorAll('.notification-item').length === 0) {
+                var badge = document.querySelector('#navbarDropdownNotifications .badge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
                         }
                     } else {
-                        pomodoroState = 'work';
-                    }
-                    pomodoroTimeLeft = 0;
-                    notifyPomodoro();
-                    setTimeout(() => { if (getPomodoroSettings().autoStartBreaks && pomodoroState !== 'work') startPomodoro(); else if (getPomodoroSettings().autoStartPomodoros && pomodoroState === 'work') startPomodoro(); }, 1000);
-                }
-            }, 1000);
+            console.log("⚠️ Hiç bildirim öğesi bulunamadı");
         }
-
-        window.stopPomodoro = function() {
-            if (pomodoroInterval) clearInterval(pomodoroInterval);
-            pomodoroInterval = null;
-            pomodoroTimeLeft = 0;
-            pomodoroState = 'work';
-            updatePomodoroDisplay();
-        }
-
-        function notifyPomodoro() {
-            if (getPomodoroSettings().playSound) {
-                const audio = new Audio('https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c7b.mp3');
-                audio.play();
-            }
-            if (getPomodoroSettings().showNotifications && 'Notification' in window) {
-                if (Notification.permission === 'granted') {
-                    new Notification('Pomodoro Zamanı!', { body: pomodoroState === 'work' ? 'Çalışma zamanı!' : 'Mola zamanı!' });
-                } else if (Notification.permission !== 'denied') {
-                    Notification.requestPermission();
-                }
-            }
-        }
-
-        // Sayfa yüklenince sayaç sıfırdan başlasın
-        pomodoroTimeLeft = getPomodoroSettings().workDuration * 60;
-        updatePomodoroDisplay();
-
-        const theme = localStorage.getItem('theme') || 'light';
-        if (theme === 'dark') document.body.classList.add('dark-theme');
-        else document.body.classList.remove('dark-theme');
     });
     </script>
-    <!-- Direct script to handle hamburger menu toggle -->
-    <script>
-        // Get the hamburger menu button
-        const menuButton = document.querySelector('.fa-bars').closest('button');
-        
-        // Add click event listener
-        if (menuButton) {
-            menuButton.addEventListener('click', function() {
-                // Toggle sidebar visibility
-                const sidebar = document.querySelector('.sidebar-wrapper');
-                if (sidebar) {
-                    sidebar.style.marginLeft = sidebar.style.marginLeft === '0px' ? '-250px' : '0px';
-                }
-                
-                // Adjust main content area
-                const content = document.querySelector('#page-content-wrapper');
-                if (content) {
-                    content.style.marginLeft = sidebar.style.marginLeft === '0px' ? '250px' : '0px';
-                }
-            });
-        }
-    </script>
+
+    <!-- Geri Dön Butonları İşlevselliği -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var dropdownTrigger = document.getElementById('navbarDropdownNotifications');
-        if (dropdownTrigger) {
-            dropdownTrigger.addEventListener('click', function(e) {
-                e.preventDefault();
-                var dropdown = new bootstrap.Dropdown(dropdownTrigger);
-                dropdown.toggle();
+        // Geri Dön butonlarının davranışını düzelt
+        var backButtons = document.querySelectorAll('a.btn-outline-secondary[href*="questions"], a.btn-secondary[href*="index"], a.btn:has(i.fa-arrow-left), a:has(i.fas.fa-arrow-left)');
+        
+        if (backButtons.length === 0) {
+            // Eğer yukarıdaki seçicilerle bulamazsak, manuel olarak bulalım
+            backButtons = [];
+            var allLinks = document.querySelectorAll('a');
+            allLinks.forEach(function(link) {
+                // İçinde "Geri Dön" metni olan veya arrow-left ikonu olan butonları ekle
+                if (link.textContent.includes('Geri Dön') || 
+                    link.innerHTML.includes('fa-arrow-left')) {
+                    backButtons.push(link);
+                }
             });
         }
+        
+        backButtons.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                // Belirli sayfalara geri dönme butonlarını hariç tut
+                // Örneğin welcome_options sayfasına yönlendiren butonlar normal çalışsın
+                if (btn.href && (btn.href.includes('welcome_options') || 
+                                btn.href.includes('tasks') ||
+                                btn.href.includes('login'))) {
+                    return;
+                }
+                
+                e.preventDefault();
+                
+                // Eğer tarayıcı geçmişinde en az 2 kayıt varsa, bir önceki sayfaya git
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    // Yoksa ana sayfaya yönlendir
+                    window.location.href = '/index';
+                }
+            });
+        });
     });
     </script>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% block scripts %}{% endblock %}
+</head>
+<body>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar-wrapper">
+            <div class="sidebar-heading">ReviseMe</div>
+            <a class="sidebar-item" href="{{ url_for('index') }}"><i class="fas fa-home"></i> <span>Ana Sayfa</span></a>
+            <a class="sidebar-item" href="{{ url_for('add_question') }}"><i class="fas fa-plus"></i> <span>Yeni Soru Ekle</span></a>
+            <a class="sidebar-item" href="{{ url_for('favorites') }}"><i class="fas fa-star"></i> <span>Favorilerim</span></a>
+            <a class="sidebar-item" href="{{ url_for('today_questions') }}"><i class="fas fa-calendar-day"></i> <span>Bugünün Soruları</span></a>
+            <a class="sidebar-item" href="{{ url_for('past_questions') }}"><i class="fas fa-history"></i> <span>Geçmiş Sorular</span></a>
+            <a class="sidebar-item" href="{{ url_for('timer') }}"><i class="fas fa-stopwatch"></i> <span>Sayaç</span></a>
+            <div class="sidebar-item mt-auto">
+                <i class="fas fa-user"></i> <span>{{ current_user.Name }}</span>
+            </div>
+        </nav>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="{{ url_for('index') }}">ReviseMe</a>
+            <form class="d-flex ms-auto">
+                <input class="form-control me-2" type="search" placeholder="Ara..." aria-label="Ara">
+                <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-bell"></i></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user"></i> {{ current_user.Name }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profil</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">Çıkış Yap</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <!-- İçerik -->
+        <div id="page-content-wrapper">
+            {% block page_content %}{% endblock %}
+        </div>
+    </div>
 </body>
 </html>

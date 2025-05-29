@@ -2,7 +2,7 @@
 
 {% block title %}Sayaç - ReviseMe{% endblock %}
 
-{% block content %}
+{% block page_content %}
 <div class="container mt-4" style="max-width:600px;">
     <h2 class="mb-4 text-center"><i class="fas fa-stopwatch"></i> Pomodoro Sayaç</h2>
     <div class="card mb-4">
@@ -97,14 +97,16 @@ function getPomodoroSettings() {
 }
 
 function updateTimerDisplay() {
+    const timerDisplayEl = document.getElementById('timerDisplay');
+    const timerModeTitleEl = document.getElementById('timerModeTitle');
     const min = String(Math.floor(timerTimeLeft / 60)).padStart(2, '0');
     const sec = String(timerTimeLeft % 60).padStart(2, '0');
-    document.getElementById('timerDisplay').textContent = `${min}:${sec}`;
+    if (timerDisplayEl) timerDisplayEl.textContent = `${min}:${sec}`;
     let title = '';
     if (timerState === 'work') title = 'Odaklanma Zamanı';
     else if (timerState === 'shortBreak') title = 'Mola Zamanı';
     else title = 'Uzun Mola Zamanı';
-    document.getElementById('timerModeTitle').textContent = title;
+    if (timerModeTitleEl) timerModeTitleEl.textContent = title;
 }
 
 function savePomodoroState() {
@@ -273,14 +275,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedSettings = localStorage.getItem('pomodoroSettings');
     if (savedSettings) {
         const settings = JSON.parse(savedSettings);
-        document.getElementById('workDuration').value = settings.workDuration;
-        document.getElementById('shortBreakDuration').value = settings.shortBreakDuration;
-        document.getElementById('longBreakDuration').value = settings.longBreakDuration;
-        document.getElementById('pomodorosUntilLongBreak').value = settings.pomodorosUntilLongBreak;
-        document.getElementById('autoStartBreaks').checked = settings.autoStartBreaks;
-        document.getElementById('autoStartPomodoros').checked = settings.autoStartPomodoros;
-        document.getElementById('playSound').checked = settings.playSound;
-        document.getElementById('showNotifications').checked = settings.showNotifications;
+        let el;
+        el = document.getElementById('workDuration');
+        if (el) el.value = settings.workDuration;
+        el = document.getElementById('shortBreakDuration');
+        if (el) el.value = settings.shortBreakDuration;
+        el = document.getElementById('longBreakDuration');
+        if (el) el.value = settings.longBreakDuration;
+        el = document.getElementById('pomodorosUntilLongBreak');
+        if (el) el.value = settings.pomodorosUntilLongBreak;
+        el = document.getElementById('autoStartBreaks');
+        if (el) el.checked = settings.autoStartBreaks;
+        el = document.getElementById('autoStartPomodoros');
+        if (el) el.checked = settings.autoStartPomodoros;
+        el = document.getElementById('playSound');
+        if (el) el.checked = settings.playSound;
+        el = document.getElementById('showNotifications');
+        if (el) el.checked = settings.showNotifications;
     }
     loadPomodoroState();
     document.getElementById('startBtn').onclick = function() { startTimer(); };
@@ -307,4 +318,4 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTimerDisplay();
 });
 </script>
-{% endblock %} 
+{% endblock scripts %} 
